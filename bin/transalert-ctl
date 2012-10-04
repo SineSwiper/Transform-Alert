@@ -1,0 +1,123 @@
+#!/usr/bin/perl
+package  # Hide from PAUSE
+   transalert_ctl;
+
+# PODNAME:  transalert_ctl
+# ABSTRACT: Command line daemon for Transform::Alert
+our $VERSION = '0.90'; # VERSION
+
+use sanity;
+use Transform::Alert;
+
+use Log::Log4perl;
+use App::Daemon 'daemonize';
+use Config::General;
+use Time::HiRes 'sleep';  # (for once we're needing something else besides time...)
+use POSIX;
+
+use namespace::clean;
+
+# make sure we're starting before demanding a -c conf option
+daemonize;
+
+# steal App::Daemon's logger...
+my $log = Log::Log4perl->get_logger('App::Daemon');
+
+# ...and start using it immediately
+$SIG{__DIE__} = sub {
+   # We're in an eval {} and don't want log
+   # this message but catch it later
+   return if ($^S);
+
+   local $Log::Log4perl::caller_depth = $Log::Log4perl::caller_depth + 1;
+   $log->logdie(@_);
+};
+
+# config file loading
+my $conf_file = App::Daemon::find_option('-c', 1) ||
+   $log->logdie("Configuration (-c) required!");
+
+my $conf = {
+   Config::General->new(
+      -ConfigFile     => $conf_file,
+      -LowerCaseNames => 1,
+   )->getall
+};
+
+# wait for it...
+my $ta = Transform::Alert->new(
+   config => $conf,
+   log    => $log,
+);
+
+# (signal handling before we start)
+$SIG{TERM} = sub {
+   $log->logwarn("SIGTERM received... shutting down!");
+   $ta->close_all;
+   $log->warn("Fin.");
+   exit 0;
+};
+
+# GO!
+while (1) {
+   my $wait = $ta->heartbeat;
+   sleep $wait if ($wait > 0);
+};
+   
+42;
+ 
+
+
+=pod
+
+=encoding utf-8
+
+=head1 NAME
+
+transalert_ctl - Command line daemon for Transform::Alert
+
+=head1 SYNOPSIS
+
+    > transalert_ctl
+
+=head1 DESCRIPTION
+
+Insert description here...
+
+=head1 CAVEATS
+
+Bad stuff...
+
+=head1 SEE ALSO
+
+Other modules...
+
+=head1 ACKNOWLEDGEMENTS
+
+Thanks and stuff...
+
+=head1 AVAILABILITY
+
+The project homepage is L<https://github.com/SineSwiper/Transform-Alert/wiki>.
+
+The latest version of this module is available from the Comprehensive Perl
+Archive Network (CPAN). Visit L<http://www.perl.com/CPAN/> to find a CPAN
+site near you, or see L<https://metacpan.org/module/Transform::Alert/>.
+
+=head1 AUTHOR
+
+Brendan Byrd <BBYRD@CPAN.org>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is Copyright (c) 2012 by Brendan Byrd.
+
+This is free software, licensed under:
+
+  The Artistic License 2.0 (GPL Compatible)
+
+=cut
+
+
+__END__
+
