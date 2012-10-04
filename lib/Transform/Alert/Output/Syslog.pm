@@ -9,18 +9,7 @@ use MooX::Types::MooseLike::Base 0.15 qw(Str Int ArrayRef HashRef InstanceOf);
 
 use Net::Syslog;
 
-with 'Transform::Alert::IO';
-
-has options => (
-   is       => 'ro',
-   isa      => HashRef,
-   required => 1,
-);
-has template => (
-   is       => 'ro',
-   isa      => ScalarRef[Str],
-   required => 1,
-);
+with 'Transform::Alert::Output';
 
 has _conn => (
    is        => 'rw',
@@ -32,7 +21,7 @@ has _conn => (
 sub open {
    my $self = shift;
    $self->_conn(
-      Net::Syslog->new( %{$self->options} )
+      Net::Syslog->new( %{$self->connopts} )
    );
 
    return 1;
@@ -47,13 +36,13 @@ sub send {
    my $syslog = $self->_conn;
    
    unless (eval { $syslog->send($msg) }) {   
-      $self->log('Error sending Syslog message: '.$@);
+      $self->log->error('Error sending Syslog message: '.$@);
       return;
    }
    return 1;
 }
 
-sub close { $_[0]->_clear_conn; 1; }
+sub close { 1; }
 
 42;
 
@@ -65,17 +54,18 @@ __END__
 
    # In your configuration
    <Output test>
-      TemplateFile  /opt/trans_alert/outputs/test.txt
+      Type          Syslog
+      TemplateFile  outputs/test.txt
       
       # See Net::Syslog->new
-      <Options>
+      <ConnOpts>
          Name       TransformAlert
          Facility   local4
          Priority   info
          SyslogHost syslog.foobar.org
          SyslogPort 514  # default
-      </Options>
-   </Input>
+      </ConnOpts>
+   </Output>
  
 = DESCRIPTION
  

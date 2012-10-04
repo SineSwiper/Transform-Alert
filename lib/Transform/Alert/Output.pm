@@ -1,26 +1,44 @@
-package Transform::Alert::IO;
+package Transform::Alert::Output;
 
 # VERSION
-# ABSTRACT: Base role for Transform::Alert input/output types
+# ABSTRACT: Base role for Transform::Alert output types
 
 use sanity;
 use Moo::Role;
-use MooX::Types::MooseLike::Base 0.15 qw(Str ArrayRef InstanceOf);
+use MooX::Types::MooseLike::Base 0.15 qw(HashRef Object);
 
-requires qw(open opened close);
+requires qw(open opened send template close);
 
-has group => (
-   is       => 'ro',
-   isa      => InstanceOf['Transform::Alert::InputGrp'],
-   required => 1,
+around BUILDARGS => sub {
+   my ($orig, $self) = (shift, shift);
+   my $hash = shift;
+   $hash = { $hash, @_ } unless ref $hash;
+
+   # read template file
+   if (my $tmpl_file = delete $hash->{templatefile}) {
+      my $tmpl_text = read_file($tmpl_file);
+      $hash->{template} = \$tmpl_text;
+   }
+   
+   $orig->($self, $hash);
+};
+
+has daemon => (
+   is       => 'rwp',
+   isa      => Object,
    weak_ref => 1,
    handles  => [ 'log' ],
 );
-
-# Conditional requires
-sub get  { die "Dummy get() called!  This method MUST be overloaded!"; }
-sub eof  { die "Dummy eof() called!  This method MUST be overloaded!"; }
-sub send { die "Dummy send() called!  This method MUST be overloaded!"; }
+has connopts => (
+   is       => 'ro',
+   isa      => HashRef,
+   required => 1,
+);
+has template => (
+   is       => 'ro',
+   isa      => ScalarRef[Str],
+   required => 1,
+);
 
 42;
 
@@ -30,7 +48,21 @@ __END__
 
 = DESCRIPTION
  
-This is the role used for all input and output types.
+This is the role used for all output types.
+
+= PROVIDES
+
+== daemon
+
+The [Alert object|Transform::Alert] that constructed it.
+
+== connopts
+
+Hash ref of the connection options (from configuration).
+
+== template
+
+Scalar ref of the output template.
 
 = REQUIRES
 
@@ -52,26 +84,7 @@ false otherwise.
 Be aware that outputs may potentially have this method called on each alert,
 since the group loop will only open the connection if it has something to send.
 
-== get
-
-Inputs only.
-
-Called on each message/alert that is to be parsed through the templates and sent
-to the outputs.  This is called on a loop, so the I/O cycle will happen on a
-per-alert basis.
-
-This must return a reference to a scalar with the message, or undef on error.
-
-== eof
-
-Inputs only.
-
-Must return a true value if there are no more alerts available to process, or
-false otherwise.
-
 == send
-
-Outputs only.
 
 Called on each alert that successfully matched a template.
 

@@ -9,13 +9,9 @@ use MooX::Types::MooseLike::Base 0.15 qw(Str Int ArrayRef HashRef InstanceOf);
 
 use Net::POP3;
 
-with 'Transform::Alert::IO';
+with 'Transform::Alert::Input';
 
-has options => (
-   is       => 'ro',
-   isa      => HashRef,
-   required => 1,
-);
+# Stolen from connopts
 has username => (
    is       => 'ro',
    isa      => Str,
@@ -40,14 +36,25 @@ has _list => (
    clearer   => 1,
 );
 
+around BUILDARGS => sub {
+   my ($orig, $self) = (shift, shift);
+   my $hash = shift;
+   $hash = { $hash, @_ } unless ref $hash;
+
+   $hash->{username} = delete $hash->{connopts}{username};
+   $hash->{password} = delete $hash->{connopts}{password};
+   
+   $orig->($self, $hash);
+};
+
 sub open {
    my $self = shift;
    my $pop  = $self->_conn(
-      Net::POP3->new( %{$self->options} )
+      Net::POP3->new( %{$self->connopts} )
    );
    
    unless ( $pop->login($self->username, $self->password) ) {
-      $self->log('POP3 Login failed: '.$pop->message);
+      $self->log->error('POP3 Login failed: '.$pop->message);
       return;
    }
    
@@ -70,7 +77,7 @@ sub get {
    my $pop = $self->_conn;
    
    unless (my $amsg = $pop->get($num)) {
-      $self->log('Error grabbing POP3 message #'.$num.': '.$pop->message);
+      $self->log->error('Error grabbing POP3 message #'.$num.': '.$pop->message);
       return;
    }
    $pop->delete($num);
@@ -104,18 +111,19 @@ __END__
  
    # In your configuration
    <Input test>
-      Username  bob
-      Password  mail4fun
+      Type      POP3
+      Interval  60  # seconds (default)
       
-      # See Net::POP3->new
-      <Options>
+      <ConnOpts>
+         Username  bob
+         Password  mail4fun
+         
+         # See Net::POP3->new
          Host     mail.foobar.org
          Port     110  # default
          Timeout  120  # default
-      </Options>
-      <Outputs>
-         # ...
-      </Outputs>
+      </ConnOpts>
+      # <Template> tags...
    </Input>
  
 = DESCRIPTION
@@ -124,7 +132,9 @@ This input type will read a POP3 mailbox and process each message through the
 input template engine.  If it finds a match, the results of the match are sent
 to one or more outputs, depending on the group configuration.
 
-See [Net::POP3] for a list of the Options section parameters.
+See [Net::POP3] for a list of the ConnOpts section parameters.  The {Username}
+and {Password} options are included in this set, but not used in the POP3
+object's construction.
 
 = CAVEATS
 

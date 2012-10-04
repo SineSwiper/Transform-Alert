@@ -5,14 +5,15 @@ package Transform::Alert::TemplateGrp;
 
 use sanity;
 use Moo;
-use MooX::Types::MooseLike::Base 0.15 qw(Str ScalarRef ArrayRef InstanceOf ConsumerOf);
+use MooX::Types::MooseLike::Base 0.15 qw(Str ScalarRef HashRef InstanceOf ConsumerOf);
+
+use Data::Dump 'pp';
 
 has in_group => (
-   is       => 'ro',
+   is       => 'rwp',
    isa      => InstanceOf['Transform::Alert::InputGrp'],
-   required => 1,
    weak_ref => 1,
-   handles  => [qw( log daemon )],
+   handles  => [ 'log' ],
 );
 has text => (
    is       => 'ro',
@@ -21,25 +22,59 @@ has text => (
 );
 has outputs => (
    is       => 'ro',
-   isa      => ArrayRef[ConsumerOf['Transform::Alert::IO']],
+   isa      => HashRef[ConsumerOf['Transform::Alert::Output']],
    required => 1,
 );
 
+around BUILDARGS => sub {
+   my ($orig, $self) = (shift, shift);
+   my $hash = shift;
+   $hash = { $hash, @_ } unless ref $hash;
+
+   # temp hash with output objects
+   my $outs = delete $hash->{output_objs};
+   
+   # replace OutputNames with Outputs
+   my $outputs = delete $hash->{outputname};
+   $outputs = [ $outputs ] unless (ref $outputs eq 'ARRAY');
+   $hash->{outputs} = [ map {
+      $_ = $outs->{$_} || die "OutputName '$_' doesn't have a matching Output block!";
+   } @$outputs ];
+   
+   # replace TemplateFile with template
+   if (my $tmpl_file = delete $hash->{templatefile}) {
+      my $tmpl_text = read_file($tmpl_file);
+      $hash->{text} = \$tmpl_text;
+   }
+   
+   $orig->($self, $hash);
+};
+
 sub send_all {
    my ($self, $vars) = @_;
+   my $log = $self->log;
+   $log->debug('Processing outputs...');
+   $log->debug(pp $vars);
    
-   foreach my $out (@{ $self->outputs }) {
+   foreach my $out_key (keys %{ $self->outputs }) {
+      $log->debug('Looking at Output "'.$out_key.'"...');
+      my $out = $self->outputs->{$out_key};
       my $out_tmpl = ${ $out->template };  # need to modify the string, hence non-ref
       
       foreach my $v (keys %$vars) {
-         my ($s, $d) = (quotemeta('{{{'.$v.'}}}'), $vars->{$v});
+         my ($s, $d) = ('\[\%\s+'.quotemeta($v).'\s+\%\]', $vars->{$v});
          $out_tmpl =~ s/$s/$d/g;
       }
       
       # send alert
-      $out->open unless $out->opened;
+      unless ($out->opened) {
+         $log->debug('Opening output connection');
+         $out->open;
+      }
+      $log->info('Sending alert for "'.$out_key.'"');
+      ### TODO: Add message text ###
       unless ($out->send($out_tmpl)) {
-         $self->log('Output error... bailing out of this process cycle!');
+         $self->warn('Output error... bailing out of this process cycle!');
          $self->close_all;
          return;
       }
