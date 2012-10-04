@@ -5,7 +5,7 @@ package Transform::Alert::TemplateGrp;
 
 use sanity;
 use Moo;
-use MooX::Types::MooseLike::Base 0.15 qw(Str ScalarRef HashRef InstanceOf ConsumerOf);
+use MooX::Types::MooseLike::Base qw(Str ScalarRef HashRef InstanceOf ConsumerOf);
 
 use Data::Dump 'pp';
 
@@ -44,6 +44,7 @@ around BUILDARGS => sub {
    # replace TemplateFile with template
    if (my $tmpl_file = delete $hash->{templatefile}) {
       my $tmpl_text = read_file($tmpl_file);
+      $tmpl_text =~ s/^\s+|\s+$//g;  # remove leading/trailing spaces
       $hash->{text} = \$tmpl_text;
    }
    

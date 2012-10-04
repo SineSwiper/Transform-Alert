@@ -5,7 +5,7 @@ package Transform::Alert::Input::POP3;
 
 use sanity;
 use Moo;
-use MooX::Types::MooseLike::Base 0.15 qw(Str Int ArrayRef HashRef InstanceOf);
+use MooX::Types::MooseLike::Base qw(Str Int ArrayRef HashRef InstanceOf);
 
 use Net::POP3;
 

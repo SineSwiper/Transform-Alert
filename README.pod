@@ -1,0 +1,111 @@
+=pod
+
+=encoding utf-8
+
+=head1 NAME
+
+Transform::Alert - Transform alerts from one type to another type
+
+=head1 SYNOPSIS
+
+    # In your configuration
+    BaseDir /opt/trans_alert
+ 
+    <Input test_in>
+       Type      POP3
+       Interval  60  # seconds (default)
+ 
+       <ConnOpts>
+          Username  bob
+          Password  mail4fun
+ 
+          # See Net::POP3->new
+          Host     mail.foobar.org
+          Port     110  # default
+          Timeout  120  # default
+       </ConnOpts>
+ 
+       <Template>
+          TemplateFile  test_in/foo_sys_email.txt
+          OutputName    test_out
+       </Template>
+       <Template>
+          TemplateFile  test_in/server01_email.txt
+          OutputName    test_out
+       </Template>         
+    </Input>
+    <Output test_out>
+       Type          Syslog
+       TemplateFile  outputs/test.txt
+ 
+       # See Net::Syslog->new
+       <ConnOpts>
+          Name       TransformAlert
+          Facility   local4
+          Priority   info
+          SyslogHost syslog.foobar.org
+          SyslogPort 514  # default
+       </ConnOpts>
+    </Output>
+
+=head1 DESCRIPTION
+
+Insert description here...
+
+=head1 CAVEATS
+
+Bad stuff...
+
+=head1 SEE ALSO
+
+Other modules...
+
+=head1 ACKNOWLEDGEMENTS
+
+Thanks and stuff...
+
+=head1 AVAILABILITY
+
+The project homepage is L<https://github.com/SineSwiper/Transform-Alert/wiki>.
+
+The latest version of this module is available from the Comprehensive Perl
+Archive Network (CPAN). Visit L<http://www.perl.com/CPAN/> to find a CPAN
+site near you, or see L<https://metacpan.org/module/Transform::Alert/>.
+
+=for :stopwords cpan testmatrix url annocpan anno bugtracker rt cpants kwalitee diff irc mailto metadata placeholders metacpan
+
+=head1 SUPPORT
+
+=head2 Internet Relay Chat
+
+You can get live help by using IRC ( Internet Relay Chat ). If you don't know what IRC is,
+please read this excellent guide: L<http://en.wikipedia.org/wiki/Internet_Relay_Chat>. Please
+be courteous and patient when talking to us, as we might be busy or sleeping! You can join
+those networks/channels and get help:
+
+=over 4
+
+=item *
+
+irc.perl.org
+
+You can connect to the server at 'irc.perl.org' and join this channel: #distzilla then talk to this person for help: SineSwiper.
+
+=back
+
+=head2 Bugs / Feature Requests
+
+Please report any bugs or feature requests via L<L<https://github.com/SineSwiper/Transform-Alert/issues>|GitHub>.
+
+=head1 AUTHOR
+
+Brendan Byrd <BBYRD@CPAN.org>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is Copyright (c) 2012 by Brendan Byrd.
+
+This is free software, licensed under:
+
+  The Artistic License 2.0 (GPL Compatible)
+

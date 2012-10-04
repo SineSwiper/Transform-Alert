@@ -5,7 +5,7 @@ package Transform::Alert::InputGrp;
 
 use sanity;
 use Moo;
-use MooX::Types::MooseLike::Base 0.15 qw(Str Int Num ScalarRef ArrayRef InstanceOf ConsumerOf);
+use MooX::Types::MooseLike::Base qw(Str Int Num ScalarRef ArrayRef InstanceOf ConsumerOf);
 
 use Storable 'dclone';
 use Time::HiRes 'time';
@@ -64,7 +64,7 @@ around BUILDARGS => sub {
    $orig->($self, $hash);
 };
 
-after BUILD => sub {
+sub BUILD {
    my $self = shift;
    $_->_set_in_group($self) for (@{ $self->templates });
    $self->input->_set_group($self);

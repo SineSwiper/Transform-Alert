@@ -5,9 +5,10 @@ package Transform::Alert;
 
 use sanity;
 use Moo;
-use MooX::Types::MooseLike::Base 0.15 qw(Str HashRef ScalarRef ArrayRef InstanceOf ConsumerOf);
+use MooX::Types::MooseLike 0.15;  # ::Base got no $VERSION
+use MooX::Types::MooseLike::Base qw(Str HashRef ScalarRef ArrayRef InstanceOf ConsumerOf);
 
-with 'MooX::Singleton';
+#with 'MooX::Singleton';
 
 use Time::HiRes 'time';
 use List::AllUtils 'min';
@@ -44,6 +45,7 @@ has outputs => (
    required => 1,
 );
 
+# Punk to funk (recursively)
 around BUILDARGS => sub {
    my ($orig, $self) = (shift, shift);
    my $hash = shift;
@@ -80,7 +82,7 @@ around BUILDARGS => sub {
 };
 
 # Tie new $self to inputs/outputs
-after BUILD => sub {
+sub BUILD {
    my $self = shift;
    $_->_set_daemon($self) for (values %{ $self->inputs }, values %{ $self->outputs });
 };

@@ -5,7 +5,7 @@ package Transform::Alert::Output;
 
 use sanity;
 use Moo::Role;
-use MooX::Types::MooseLike::Base 0.15 qw(HashRef Object);
+use MooX::Types::MooseLike::Base qw(HashRef Object);
 
 requires qw(open opened send template close);
 
@@ -17,6 +17,7 @@ around BUILDARGS => sub {
    # read template file
    if (my $tmpl_file = delete $hash->{templatefile}) {
       my $tmpl_text = read_file($tmpl_file);
+      $tmpl_text =~ s/^\s+|\s+$//g;  # remove leading/trailing spaces
       $hash->{template} = \$tmpl_text;
    }
    
