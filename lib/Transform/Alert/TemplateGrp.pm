@@ -5,9 +5,14 @@ package Transform::Alert::TemplateGrp;
 
 use sanity;
 use Moo;
-use MooX::Types::MooseLike::Base qw(Str ScalarRef HashRef InstanceOf ConsumerOf);
+use MooX::Types::MooseLike::Base qw(Bool Str ArrayRef ScalarRef HashRef InstanceOf ConsumerOf);
 
 use Data::Dump 'pp';
+use File::Slurp 'read_file';
+use Module::Load;  # yes, using both Class::Load and Module::Load, as M:L will load files
+use Module::Metadata;
+
+use namespace::clean;
 
 has in_group => (
    is       => 'rwp',
@@ -15,10 +20,20 @@ has in_group => (
    weak_ref => 1,
    handles  => [ 'log' ],
 );
+has preparsed => (
+   is      => 'ro',
+   isa     => Bool,
+   default => sub { 0 },
+);
 has text => (
    is       => 'ro',
    isa      => ScalarRef[Str],
    required => 1,
+);
+has munger => (
+   is        => 'ro',
+   isa       => ArrayRef[Str],
+   predicate => 1,
 );
 has outputs => (
    is       => 'ro',
@@ -37,15 +52,37 @@ around BUILDARGS => sub {
    # replace OutputNames with Outputs
    my $outputs = delete $hash->{outputname};
    $outputs = [ $outputs ] unless (ref $outputs eq 'ARRAY');
-   $hash->{outputs} = [ map {
-      $_ = $outs->{$_} || die "OutputName '$_' doesn't have a matching Output block!";
-   } @$outputs ];
+   $hash->{outputs} = { map {
+      $_ => ($outs->{$_} || die "OutputName '$_' doesn't have a matching Output block!")
+   } @$outputs };
    
-   # replace TemplateFile with template
-   if (my $tmpl_file = delete $hash->{templatefile}) {
-      my $tmpl_text = read_file($tmpl_file);
+   # read template file
+   if (my $tmpl_file = delete $hash->{templatefile}) { $hash->{text} = read_file($tmpl_file); }
+   elsif ($hash->{preparsed})                        { $hash->{text} = ''; }
+   
+   # work with inline templates (and file above)
+   if (exists $hash->{text} && not ref $hash->{text}) {
+      my $tmpl_text = $hash->{text};
       $tmpl_text =~ s/^\s+|\s+$//g;  # remove leading/trailing spaces
       $hash->{text} = \$tmpl_text;
+   }
+   
+   # munger class
+   if (my $munger = delete $hash->{munger}) {
+      # variable parsing
+      my ($file, $class, $fc, $method);
+      ($fc, $method)  = split /-\>/, $munger, 2;
+      ($file, $class) = split /\s+/, $fc, 2;
+      
+      unless ($class) {
+         my $info = Module::Metadata->new_from_file($file);
+         $class = ($info->packages_inside)[0];
+         die "No packages found in $file!" unless $class;
+      }
+      $method ||= 'munge';
+      
+      load $file;
+      $hash->{munger} = [ $class, $method ];
    }
    
    $orig->($self, $hash);
@@ -55,7 +92,24 @@ sub send_all {
    my ($self, $vars) = @_;
    my $log = $self->log;
    $log->debug('Processing outputs...');
-   $log->debug(pp $vars);
+
+   $log->debug('Variables (pre-munged):');
+   $log->debug( join "\n", map { '   '.$_ } split(/\n/, pp $vars) );
+
+   # Munge the data if configured
+   if ($self->munger) {
+      my ($class, $method) = @{ $self->munger };
+      no strict 'refs';
+      $vars = $class->$method($vars);
+
+      unless ($vars) {
+         $log->debug('Munger cancelled output');
+         return 1;
+      }
+      
+      $log->debug('Variables (post-munge):');
+      $log->debug( join "\n", map { '   '.$_ } split(/\n/, pp $vars) );
+   }
    
    foreach my $out_key (keys %{ $self->outputs }) {
       $log->debug('Looking at Output "'.$out_key.'"...');
@@ -74,7 +128,7 @@ sub send_all {
       }
       $log->info('Sending alert for "'.$out_key.'"');
       ### TODO: Add message text ###
-      unless ($out->send($out_tmpl)) {
+      unless ($out->send(\$out_tmpl)) {
          $self->warn('Output error... bailing out of this process cycle!');
          $self->close_all;
          return;
@@ -86,7 +140,7 @@ sub send_all {
 
 sub close_all {
    my $self = shift;
-   $_->close for (@{ $self->outputs });
+   $_->close for (values %{ $self->outputs });
    return 1;
 }
 

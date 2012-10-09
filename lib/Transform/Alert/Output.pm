@@ -5,9 +5,11 @@ package Transform::Alert::Output;
 
 use sanity;
 use Moo::Role;
-use MooX::Types::MooseLike::Base qw(HashRef Object);
+use MooX::Types::MooseLike::Base qw(Str ScalarRef HashRef Object);
 
-requires qw(open opened send template close);
+use File::Slurp 'read_file';
+
+requires qw(open opened send close);
 
 around BUILDARGS => sub {
    my ($orig, $self) = (shift, shift);
@@ -15,8 +17,11 @@ around BUILDARGS => sub {
    $hash = { $hash, @_ } unless ref $hash;
 
    # read template file
-   if (my $tmpl_file = delete $hash->{templatefile}) {
-      my $tmpl_text = read_file($tmpl_file);
+   if (my $tmpl_file = delete $hash->{templatefile}) { $hash->{template} = read_file($tmpl_file); }
+   
+   # work with inline templates (and file above)
+   if (exists $hash->{template} && not ref $hash->{template}) {
+      my $tmpl_text = $hash->{template};
       $tmpl_text =~ s/^\s+|\s+$//g;  # remove leading/trailing spaces
       $hash->{template} = \$tmpl_text;
    }

@@ -10,10 +10,15 @@ use MooX::Types::MooseLike::Base qw(Str HashRef ScalarRef ArrayRef InstanceOf Co
 
 #with 'MooX::Singleton';
 
+use Transform::Alert::InputGrp;
+
 use Time::HiRes 'time';
 use List::AllUtils 'min';
 use File::Slurp 'read_file';
 use Storable 'dclone';
+use Class::Load 'load_class';
+
+use namespace::clean;
 
 ### FIXME: Need logging prefixes ###
 
@@ -24,7 +29,7 @@ has config => (
 );
 has log => (
    is       => 'ro',
-   isa      => InstanceOf['Log::Log4perl'],
+   isa      => InstanceOf['Log::Log4perl::Logger'],
    required => 1,
 );
 
@@ -63,7 +68,9 @@ around BUILDARGS => sub {
       
       # create the new class
       my $type = delete $out_conf->{type} || die "Output '$out_key' requires a Type!";
-      $hash->{outputs}{$out_key} = "Transform::Alert::Output::$type"->new($out_conf);
+      my $class = "Transform::Alert::Output::$type";
+      load_class $class;
+      $hash->{outputs}{$out_key} = $class->new($out_conf);
    }
    
    # now process inputs
@@ -121,12 +128,14 @@ sub close_all {
 
 __END__
 
+=encoding utf-8
+
 =begin wikidoc
 
 = SYNOPSIS
  
    # In your configuration
-   BaseDir /opt/trans_alert
+   BaseDir /opt/transalert
    
    <Input test_in>
       Type      POP3
@@ -148,6 +157,7 @@ __END__
       </Template>
       <Template>
          TemplateFile  test_in/server01_email.txt
+         Munger        test_in/Munger.pm MyMunger->munge
          OutputName    test_out
       </Template>         
    </Input>
@@ -164,21 +174,169 @@ __END__
          SyslogPort 514  # default
       </ConnOpts>
    </Output>
+   
+   # On a prompt
+   > transalert_ctl -c file.conf -l file.log -p file.pid
  
 = DESCRIPTION
  
-Insert description here...
+Ever have a need to transform one kind of alert/message into another?  IE: Taking a bunch of alert emails and converting them into Syslogs, so
+that they can be sent to a real EMS.  Then this platform delivers.
+
+Transform::Alert is a highly extensible platform to transform alerts from anything to anything else.  Everything is ran through a configuration
+file, a couple of templates, and [Transform::Alert's daemon app|transalert_ctl].
+
+Or to show it with a UTF8 drawing, the platform works like this:
+
+   Input ──┬── InTemplate ────────────── Output + OutTemplate
+           ├── InTemplate + Munger ──┬── Output + OutTemplate
+           │                         └── Output + OutTemplate
+           ├── InTemplate + Munger ──┬── Output + OutTemplate
+           └── InTemplate ───────────┘ 
+   Input ──┬── InTemplate ────────────── Output + OutTemplate
+           └── InTemplate + Munger ───── Output + OutTemplate
+         
+All [inputs|Transform::Alert::Input] and [outputs|Transform::Alert::Output] are separate modules, so if there isn't a protocol available, they
+are easy to make.  Input templates use a multi-line regular expression with named captures to categorize the variables.  Output templates are 
+(very) simplified [TT|Template::Toolkit] templates with a `[% var %]` syntax.  If you need to transform the data after it's been captured, you
+can use a "munger" module to play with the variables any way you see fit.
+
+= DETAILS
+
+== Configuration Format
+
+The configuration uses an Apache-based format (via [Config::General]).  There's a number of elements required within the config file:
+
+== BaseDir
+
+   BaseDir [dir]
+   
+The base directory is used as a starting point for the daemon and any of the relative paths in the config file.  The {BaseDir} option itself
+can use a relative path, in which case will start at the config path.
+   
+=== Input
+
+   <Input [name]>  # one or more
+      Type      [type]
+      Interval  [second]  # optional
+      
+      # <ConnOpts> section; module-specific
+      # <Template> sections
+   </Input>
+
+The {Input} section specifies a single input source.  All {Input} sections must be named.  Multiple {Input} sections can be specified, but the
+name must be unique.  (Currently, the input name isn't used, but this may change in the future.)
+
+The {Type} specifies the type of input used.  This maps to a `Transform::Alert::Input::*` class.  More information about the different modules
+be found with the corresponding documentation.
+
+The {Interval} specifies how frequently the input should be checked (in seconds).  Server-based input shouldn't be checked too often, as it
+might be considered abusive.  In the case of overruns, the input will only be re-checked after the interval is complete.  (In other words, the
+"last finished" time is recorded, not the "last start".)
+
+There is one {ConnOpts} section in each input.  The options will be specific to each type, so look there for documentation.
+
+The engine may someday be changed to have multi-processed inputs, but the need isn't immediate right now.  (Patches welcome.)
+
+=== Template
+
+   <Input ...>
+      <Template>  # one or more
+         # only use one of these options
+         TemplateFile  [file]    
+         Template      "[String]"
+         Preparsed     1
+         
+         Munger        [file] [class]->[method]  # optional
+         OutputName    test_out    # one or more
+      </Template>         
+   </Input>
+
+All {Input} sections must have one or more {Template} sections.  (In this case, this is an input template.)  As messages are being processed,
+each message is tested on all of the templates.
+
+All templates must either have a {TemplateFile}, {Template}, or {Preparsed} option.  (These are mutually excusive.)  In most cases, you should
+stick with file-based templates, as inline templates are whitespace sensitive, and should only be used for single line REs.
+
+If you set the {Preparsed} option, a template file is not used.  Instead, a hash is passed directly from the input (instead of text).  Without
+a Munger to validate the hash, all preparsed templates will be accepted (and sent to the output), as long as it passes data.  For a structure
+of the hash passed, look at the documentation for that input module.
+
+The optional {Munger} option can be used to specify a module used in changing the variables between the input and output.  (More details about
+Mungers further down.)  The option itself can be expressed in a number of ways:
+
+   Munger  File.pm
+   Munger  File.pm->method
+   Munger  File.pm My::Munger
+   Munger  My::Munger
+   Munger  My::Munger->method
+
+If a class isn't specified, the first package name found in the file is used.  If the method is missing, the default is {munge}.  If there
+isn't a file specified, it will try to load the class like `use/require`.  (Technically, you could take advantage of the `.` path in `%INC`,
+but it's better to just provide the filename.)
+
+The {OutputName} options provide the name of the Output sources to use after a template match is found.  (These sources are defined below.)
+More that one option means that the alert will be sent to multiple sources.
+
+== Output
+
+   <Output [name]>  # one or more
+      Type          [type]
+      TemplateFile  [file]      # not used with Template
+      Template      "[String]"  # not used with TemplateFile
+      
+      # <ConnOpts> section; module-specific
+   </Output>
+
+Like {Input}, {Output} sections need to be uniquely named.  This name is used with the {OutputName} option above.  Also like {Input}, the
+{Type} functions the same way (mapping to a `Transform::Alert::Output::*` class), and {ConnOpts} contains all of the module-specific options.
+
+Similar to {Template} sections, the {Output} section must either have a {TemplateFile} or a {Template} option.  However, you can only use a 
+single template per {Output}.  If you need more, use another section with most of the same options.
+   
+== Directory Structure
+
+Depending on how large your setup is, you may want to create a directory structure like this:
+
+   /opt/transalert          # config, log, PID
+   /opt/transalert/input1   # various input template directories                 
+   /opt/transalert/input2   
+   /opt/transalert/input3
+   /opt/transalert/outputs  # single directory for output templates
+   
+If your set up is small, you can get away with a single directory.  Just be sure to use the log/PID options in [transalert_ctl], so that they
+in the right directory.
+   
+== Input Templates
+
+### FINISH ###
+
+Please note that a matched template doesn't stop the matching process, so make sure the templates are unique enough if you don't want to
+match multiple templates.
+
+== Output Templates
+
+### FINISH ###
+
+== Mungers
+
+### FINISH ###
 
 = CAVEATS
 
-Bad stuff...
+This doesn't work on Windows.  Blame [Proc::ProcessTable].  Or rather, [this bug|https://rt.cpan.org/Ticket/Display.html?id=75931].
 
-= SEE ALSO
+= TODO
 
-Other modules...
+Moar I/O:
 
-= ACKNOWLEDGEMENTS
-
-Thanks and stuff...
+   Inputs            Outputs
+   ------            -------
+   HTTP::Atom        
+   HTTP::RSS         
+   SNMPTrapd         SNMPTrap
+   File::CSV         File::CSV
+   File::Text        File::Text
+                     IRC
 
 =end wikidoc

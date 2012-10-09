@@ -23,8 +23,8 @@ __END__
  
    # In your configuration
    <Output null>
-      Type          Null
-      TemplateFile  /dev/null
+      Type     Null
+      Template ""
       <ConnOpts/>
    </Output>
  

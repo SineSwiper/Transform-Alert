@@ -1,2 +1,2 @@
 
-I am a (?<item>.+).
+I am an? (?<item>.+).

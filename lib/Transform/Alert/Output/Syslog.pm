@@ -35,7 +35,7 @@ sub send {
    my ($self, $msg) = @_;
    my $syslog = $self->_conn;
    
-   unless (eval { $syslog->send($msg) }) {   
+   unless (eval { $syslog->send($$msg) }) {   
       $self->log->error('Error sending Syslog message: '.$@);
       return;
    }
@@ -71,7 +71,7 @@ __END__
  
 This output type will send a syslog alert for each converted input.
 
-See [Net::Syslog] for a list of the Options section parameters.
+See [Net::Syslog] for a list of the ConnOpts section parameters.
 
 = CAVEATS
 

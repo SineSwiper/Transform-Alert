@@ -14,6 +14,7 @@ use App::Daemon 'daemonize';
 use Config::General;
 use Time::HiRes 'sleep';  # (for once we're needing something else besides time...)
 use POSIX;
+use Path::Class;
 
 use namespace::clean;
 
@@ -44,6 +45,10 @@ my $conf = {
    )->getall
 };
 
+# change the working directory to the configuration file,
+# so that BaseDir can use relative paths
+chdir file($conf_file)->dir->stringify;
+
 # wait for it...
 my $ta = Transform::Alert->new(
    config => $conf,
@@ -63,29 +68,43 @@ while (1) {
    my $wait = $ta->heartbeat;
    sleep $wait if ($wait > 0);
 };
- 
+
+#### DEBUG: Pod::Usage doesn't play nice with wikidoc
+
 __END__
 
-=begin wikidoc
+=head1 SYNOPSIS
 
-= SYNOPSIS
+   transalert_ctl {start|stop|status}? [OPTION]...
+   
+   Controls the Transform::Alert daemon.
+   
+   Control commands:
+      start      Start up the daemon.  Default action if not specified.
+      stop       Stop the daemon.  Typically requires a -p option.
+      status     Print out diagnostics on what the status of the daemon is.  Typically requires a -p option.
+              
+   Options:   
+      -c FILE    Loads FILE for configuration.  Required to start the daemon.        
+      -X         Foreground mode.  Log messages go to the screen.
+      -l FILE    Sends Log4perl messages to FILE in background mode.  Defaults to ./transalert_ctl.log.
+      -p FILE    Writes PID to FILE.  Defaults to ./transalert_ctl.pid.
+      -u USER    Run as USER.  Only applies if running as root.  Defaults to 'nobody'.
+      -l4p FILE  Loads FILE for Log4perl configuration.
+      -v         Debug mode.  Ignored if -l4p option is specified.
  
-   > transalert_ctl
- 
-= DESCRIPTION
+=head1 DESCRIPTION
  
 Insert description here...
 
-= CAVEATS
+=head1 CAVEATS
 
 Bad stuff...
 
-= SEE ALSO
+=head1 SEE ALSO
 
 Other modules...
 
-= ACKNOWLEDGEMENTS
+=head1 ACKNOWLEDGEMENTS
 
 Thanks and stuff...
-
-=end wikidoc
