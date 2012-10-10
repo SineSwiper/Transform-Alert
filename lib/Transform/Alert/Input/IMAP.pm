@@ -23,9 +23,8 @@ has _conn => (
    is        => 'rw',
    isa       => InstanceOf['Mail::IMAPClient'],
    lazy      => 1,
-   ### TODO: Make sure this isn't causing memory leaks ###
    default   => sub {
-      Mail::IMAPClient->new( %{$self->connopts} )
+      Mail::IMAPClient->new( %{shift->connopts} )
    },
 );
 has _list => (
@@ -73,7 +72,10 @@ sub open {
    return 1;
 }
 
-sub opened { shift->_conn->IsSelected }
+sub opened { 
+   my $self = shift;
+   $self->_conn and $self->_conn->IsSelected;
+}
 
 sub get {
    my $self = shift;

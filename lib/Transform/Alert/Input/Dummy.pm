@@ -39,7 +39,7 @@ __END__
       
       <ConnOpts/>
       <Template>
-         TemplateFile  dummy.txt
+         TemplateFile  dummy.re
          OutputName    null
       </Template>
    </Input>

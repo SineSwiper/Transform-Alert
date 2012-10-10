@@ -18,6 +18,10 @@ use Path::Class;
 
 use namespace::clean;
 
+# check to see if we have a l4p option
+my $l4p = App::Daemon::find_option( '-l4p', 1 );
+push @ARGV, '-l4p', $l4p if ($l4p);  # put it back
+
 # make sure we're starting before demanding a -c conf option
 daemonize;
 
@@ -33,6 +37,15 @@ $SIG{__DIE__} = sub {
    local $Log::Log4perl::caller_depth = $Log::Log4perl::caller_depth + 1;
    $log->logdie(@_);
 };
+
+# change the layout if we're using defaults
+unless ($l4p) {
+   # (Log4Perl doesn't make this easy to change...)
+   my $appender = $Log::Log4perl::Logger::APPENDER_BY_NAME{'FileApp'};
+   $appender->layout(
+      Log::Log4perl::Layout::PatternLayout::Multiline->new("[%d{ISO8601}] [%-5p] {%-25M{2}} %m%n")
+   );
+}
 
 # config file loading
 my $conf_file = App::Daemon::find_option('-c', 1) ||
@@ -69,11 +82,13 @@ while (1) {
    sleep $wait if ($wait > 0);
 };
 
-#### DEBUG: Pod::Usage doesn't play nice with wikidoc
-
 __END__
 
-=head1 SYNOPSIS
+=encoding utf-8
+
+=begin wikidoc
+      
+= SYNOPSIS
 
    transalert_ctl {start|stop|status}? [OPTION]...
    
@@ -92,19 +107,13 @@ __END__
       -u USER    Run as USER.  Only applies if running as root.  Defaults to 'nobody'.
       -l4p FILE  Loads FILE for Log4perl configuration.
       -v         Debug mode.  Ignored if -l4p option is specified.
+
+= DESCRIPTION
  
-=head1 DESCRIPTION
- 
-Insert description here...
+Most of this stuff is pretty obvious.  [App::Daemon] also has some useful information about the CLI options.
 
-=head1 CAVEATS
+= CAVEATS
 
-Bad stuff...
+The {-l} and {-p} options should really have config file equivalents...
 
-=head1 SEE ALSO
-
-Other modules...
-
-=head1 ACKNOWLEDGEMENTS
-
-Thanks and stuff...
+=end wikidoc

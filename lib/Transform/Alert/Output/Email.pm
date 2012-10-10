@@ -25,7 +25,6 @@ has _transport => (
    is        => 'rw',
    isa       => ConsumerOf['Email::Sender::Transport'],
    lazy      => 1,
-   ### TODO: Make sure this isn't causing memory leaks ###
    default   => sub {
       my $self = shift;
       
@@ -74,7 +73,7 @@ __END__
    # In your configuration
    <Output test>
       Type          Email
-      TemplateFile  outputs/test.txt
+      TemplateFile  outputs/test.tt
       
       <ConnOpts>
          TransportClass  SMTP::Persistent  # default
@@ -85,7 +84,7 @@ __END__
          Helo  TransformAlert
       </ConnOpts>
    </Output>
- 
+
 = DESCRIPTION
  
 This output type will send an email for each converted input.

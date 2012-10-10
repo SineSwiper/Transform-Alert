@@ -5,7 +5,7 @@ package Transform::Alert::Output::Syslog;
 
 use sanity;
 use Moo;
-use MooX::Types::MooseLike::Base qw(Str Int ArrayRef HashRef InstanceOf);
+use MooX::Types::MooseLike::Base qw(InstanceOf);
 
 use Net::Syslog;
 
@@ -14,22 +14,26 @@ with 'Transform::Alert::Output';
 has _conn => (
    is        => 'rw',
    isa       => InstanceOf['Net::Syslog'],
+   lazy      => 1,
+   default   => sub { Net::Syslog->new( %{shift->connopts} ) },
    predicate => 1,
-   clearer   => 1,
 );
 
-sub open {
-   my $self = shift;
-   $self->_conn(
-      Net::Syslog->new( %{$self->connopts} )
-   );
+# Net::Syslog is a bit picky about its case-sensitivity
+around BUILDARGS => sub {
+   my ($orig, $self) = (shift, shift);
+   my $hash = shift;
+   $hash = { $hash, @_ } unless ref $hash;
 
-   return 1;
-}
+   foreach my $keyword (qw{ Name Facility Priority Pid SyslogPort SyslogHost }) {
+      $hash->{connopts}{$keyword} = delete $hash->{connopts}{lc $keyword} if (exists $hash->{connopts}{lc $keyword});
+   }
+   
+   $orig->($self, $hash);
+};
 
-# Net::Syslog::send creates new IO::Sockets each time, so 
-# just a simple check here...
-sub opened { $_[0]->_has_conn; }
+sub open   { shift->_conn; }
+sub opened { shift->_has_conn; }
 
 sub send {
    my ($self, $msg) = @_;
@@ -55,7 +59,7 @@ __END__
    # In your configuration
    <Output test>
       Type          Syslog
-      TemplateFile  outputs/test.txt
+      TemplateFile  outputs/test.tt
       
       # See Net::Syslog->new
       <ConnOpts>

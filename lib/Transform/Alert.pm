@@ -20,8 +20,6 @@ use Class::Load 'load_class';
 
 use namespace::clean;
 
-### FIXME: Need logging prefixes ###
-
 has config => (
    is       => 'ro',
    isa      => HashRef,
@@ -99,7 +97,10 @@ sub heartbeat {
    my $log  = $self->log;
    
    $log->debug('START Heartbeat');
-   foreach my $in_key (keys %{ $self->inputs }) {
+   foreach my $in_key (sort {
+      # sorting these by time_left, so that (hopefully) as much as possible is processed in one heartbeat
+      $self->inputs->{$a}->time_left <=> $self->inputs->{$b}->time_left
+   } keys %{ $self->inputs }) {
       $log->debug('Looking at Input "'.$in_key.'"...');
       my $in = $self->inputs->{$in_key};
    
@@ -111,7 +112,7 @@ sub heartbeat {
    $log->debug('END Heartbeat');
    
    # shut up until I'm ready...
-   return min map { time - $_->last_finished + $_->interval } values %{ $self->inputs };
+   return min map { $_->time_left } values %{ $self->inputs };
 }
 
 sub close_all {
@@ -152,18 +153,18 @@ __END__
       </ConnOpts>
       
       <Template>
-         TemplateFile  test_in/foo_sys_email.txt
+         TemplateFile  test_in/foo_sys_email.re
          OutputName    test_out
       </Template>
       <Template>
-         TemplateFile  test_in/server01_email.txt
+         TemplateFile  test_in/server01_email.re
          Munger        test_in/Munger.pm MyMunger->munge
          OutputName    test_out
       </Template>         
    </Input>
    <Output test_out>
       Type          Syslog
-      TemplateFile  outputs/test.txt
+      TemplateFile  outputs/test.tt
       
       # See Net::Syslog->new
       <ConnOpts>
@@ -198,8 +199,8 @@ Or to show it with a UTF8 drawing, the platform works like this:
          
 All [inputs|Transform::Alert::Input] and [outputs|Transform::Alert::Output] are separate modules, so if there isn't a protocol available, they
 are easy to make.  Input templates use a multi-line regular expression with named captures to categorize the variables.  Output templates are 
-(very) simplified [TT|Template::Toolkit] templates with a `[% var %]` syntax.  If you need to transform the data after it's been captured, you
-can use a "munger" module to play with the variables any way you see fit.
+[TT|Template::Toolkit] templates with a {[% var %]} syntax.  If you need to transform the data after it's been captured, you can use a "munger"
+module to play with the variables any way you see fit.
 
 = DETAILS
 
@@ -227,7 +228,7 @@ can use a relative path, in which case will start at the config path.
 The {Input} section specifies a single input source.  All {Input} sections must be named.  Multiple {Input} sections can be specified, but the
 name must be unique.  (Currently, the input name isn't used, but this may change in the future.)
 
-The {Type} specifies the type of input used.  This maps to a `Transform::Alert::Input::*` class.  More information about the different modules
+The {Type} specifies the type of input used.  This maps to a {Transform::Alert::Input::*} class.  More information about the different modules
 be found with the corresponding documentation.
 
 The {Interval} specifies how frequently the input should be checked (in seconds).  Server-based input shouldn't be checked too often, as it
@@ -272,7 +273,7 @@ Mungers further down.)  The option itself can be expressed in a number of ways:
    Munger  My::Munger->method
 
 If a class isn't specified, the first package name found in the file is used.  If the method is missing, the default is {munge}.  If there
-isn't a file specified, it will try to load the class like `use/require`.  (Technically, you could take advantage of the `.` path in `%INC`,
+isn't a file specified, it will try to load the class like {use/require}.  (Technically, you could take advantage of the {.} path in {%INC},
 but it's better to just provide the filename.)
 
 The {OutputName} options provide the name of the Output sources to use after a template match is found.  (These sources are defined below.)
@@ -289,7 +290,7 @@ More that one option means that the alert will be sent to multiple sources.
    </Output>
 
 Like {Input}, {Output} sections need to be uniquely named.  This name is used with the {OutputName} option above.  Also like {Input}, the
-{Type} functions the same way (mapping to a `Transform::Alert::Output::*` class), and {ConnOpts} contains all of the module-specific options.
+{Type} functions the same way (mapping to a {Transform::Alert::Output::*} class), and {ConnOpts} contains all of the module-specific options.
 
 Similar to {Template} sections, the {Output} section must either have a {TemplateFile} or a {Template} option.  However, you can only use a 
 single template per {Output}.  If you need more, use another section with most of the same options.
@@ -305,7 +306,7 @@ Depending on how large your setup is, you may want to create a directory structu
    /opt/transalert/outputs  # single directory for output templates
    
 If your set up is small, you can get away with a single directory.  Just be sure to use the log/PID options in [transalert_ctl], so that they
-in the right directory.
+are put in the right directory.
    
 == Input Templates
 
@@ -316,7 +317,8 @@ match multiple templates.
 
 == Output Templates
 
-### FINISH ###
+Output templates use [Template::Toolkit].  If you want a quick and dirty lesson on how they work, check out [Template::Manual::Syntax].  If 
+*that* is too wordy for you, then just remember that variables are replaced with a {[% var %]} syntax.
 
 == Mungers
 
@@ -334,7 +336,6 @@ Moar I/O:
    ------            -------
    HTTP::Atom        
    HTTP::RSS         
-   SNMPTrapd         SNMPTrap
    File::CSV         File::CSV
    File::Text        File::Text
                      IRC

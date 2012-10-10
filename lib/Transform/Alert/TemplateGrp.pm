@@ -7,6 +7,7 @@ use sanity;
 use Moo;
 use MooX::Types::MooseLike::Base qw(Bool Str ArrayRef ScalarRef HashRef InstanceOf ConsumerOf);
 
+use Template;
 use Data::Dump 'pp';
 use File::Slurp 'read_file';
 use Module::Load;  # yes, using both Class::Load and Module::Load, as M:L will load files
@@ -57,8 +58,9 @@ around BUILDARGS => sub {
    } @$outputs };
    
    # read template file
-   if (my $tmpl_file = delete $hash->{templatefile}) { $hash->{text} = read_file($tmpl_file); }
-   elsif ($hash->{preparsed})                        { $hash->{text} = ''; }
+   if    ($hash->{templatefile}) { $hash->{text} = read_file( delete $hash->{templatefile} ); }
+   elsif ($hash->{template})     { $hash->{text} = delete $hash->{template}; }
+   elsif ($hash->{preparsed})    { $hash->{text} = ''; }
    
    # work with inline templates (and file above)
    if (exists $hash->{text} && not ref $hash->{text}) {
@@ -111,15 +113,18 @@ sub send_all {
       $log->debug( join "\n", map { '   '.$_ } split(/\n/, pp $vars) );
    }
    
+   my $tt = Template->new();
    foreach my $out_key (keys %{ $self->outputs }) {
       $log->debug('Looking at Output "'.$out_key.'"...');
       my $out = $self->outputs->{$out_key};
-      my $out_tmpl = ${ $out->template };  # need to modify the string, hence non-ref
+      my $out_str = '';
       
-      foreach my $v (keys %$vars) {
-         my ($s, $d) = ('\[\%\s+'.quotemeta($v).'\s+\%\]', $vars->{$v});
-         $out_tmpl =~ s/$s/$d/g;
-      }
+      $tt->process($out->template, $vars, \$out_str) || do {
+         $log->error('TT error for "$out_key": '.$tt->error);
+         $log->warn('Output error... bailing out of this process cycle!');
+         $self->close_all;
+         return;
+      };
       
       # send alert
       unless ($out->opened) {
@@ -128,8 +133,8 @@ sub send_all {
       }
       $log->info('Sending alert for "'.$out_key.'"');
       ### TODO: Add message text ###
-      unless ($out->send(\$out_tmpl)) {
-         $self->warn('Output error... bailing out of this process cycle!');
+      unless ($out->send(\$out_str)) {
+         $log->warn('Output error... bailing out of this process cycle!');
          $self->close_all;
          return;
       }
@@ -152,7 +157,18 @@ __END__
 
 = SYNOPSIS
  
-   # code
+   # In your configuration
+   <Input ...>
+      <Template>  # one or more
+         # only use one of these options
+         TemplateFile  [file]    
+         Template      "[String]"
+         Preparsed     1
+         
+         Munger        [file] [class]->[method]  # optional
+         OutputName    test_out    # one or more
+      </Template>         
+   </Input>
  
 = DESCRIPTION
  

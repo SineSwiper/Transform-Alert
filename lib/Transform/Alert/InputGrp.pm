@@ -11,7 +11,7 @@ use Transform::Alert::TemplateGrp;
 
 use Time::HiRes 'time';
 use Class::Load 'load_class';
-use String::Escape qw(elide backslash);
+use String::Escape qw(elide printable);
 
 use namespace::clean;
 
@@ -43,6 +43,10 @@ has last_finished => (
    lazy     => 1,
    default  => sub { 0 },
 );
+sub time_left {
+   my $self = shift;
+   time - $self->last_finished + $self->interval;
+}
 
 around BUILDARGS => sub {
    my ($orig, $self) = (shift, shift);
@@ -95,7 +99,7 @@ sub process {
          $self->close_all;
          return;
       }
-      $log->debug('   Found message: '.backslash(elide($$msg, 100)) );
+      $log->debug('   Found message: '.printable(elide($$msg, 100)) );
       
       # start the matching process
       foreach my $tmpl (@{ $self->templates }) {

@@ -5,7 +5,7 @@ package Transform::Alert::Input::Syslogd;
 
 use sanity;
 use Moo;
-use MooX::Types::MooseLike::Base qw(Str Int ArrayRef HashRef InstanceOf);
+use MooX::Types::MooseLike::Base qw(InstanceOf);
 
 use Net::Syslogd;
 
@@ -49,7 +49,7 @@ sub get {
       priority => $msg->priority,
       facility => $msg->facility,
       severity => $msg->severity,
-      time     => $msg->time,
+      time     => $msg->time(),
       hostname => $msg->hostname,
       message  => $msg->message,
    });
