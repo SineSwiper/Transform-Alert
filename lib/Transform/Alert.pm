@@ -1,6 +1,6 @@
 package Transform::Alert;
 
-our $VERSION = '0.90'; # VERSION
+our $VERSION = '0.90_001'; # VERSION
 # ABSTRACT: Transform alerts from one type to another type
 
 use sanity;
@@ -212,7 +212,7 @@ module to play with the variables any way you see fit.
 
 The configuration uses an Apache-based format (via L<Config::General>).  There's a number of elements required within the config file:
 
-=head2 BaseDir
+=head3 BaseDir
 
     BaseDir [dir]
 
@@ -275,6 +275,7 @@ Mungers further down.)  The option itself can be expressed in a number of ways:
     Munger  File.pm My::Munger
     Munger  My::Munger
     Munger  My::Munger->method
+    Munger  File.pm My::Munger->method  # preferred
 
 If a class isn't specified, the first package name found in the file is used.  If the method is missing, the default is C<<< munge >>>.  If there
 isn't a file specified, it will try to load the class like C<<< use/require >>>.  (Technically, you could take advantage of the C<<< . >>> path in C<<< %INC >>>,
@@ -283,7 +284,7 @@ but it's better to just provide the filename.)
 The C<<< OutputName >>> options provide the name of the Output sources to use after a template match is found.  (These sources are defined below.)
 More that one option means that the alert will be sent to multiple sources.
 
-=head2 Output
+=head3 Output
 
     <Output [name]>  # one or more
        Type          [type]
@@ -314,15 +315,21 @@ are put in the right directory.
 
 =head2 Input Templates
 
-### FINISH ###
+Input templates are basically big multi-line regular expressions.  These are NOT C<<< /x >>> whitespace-insensitive regular expressions, as those
+would make copyE<sol>pasting large bodies of text more difficult.  (There's an assumption that most input templates will have more static text than
+freeform RE parts.)  On the plus side, leading and trailing whitespace is removed, so that's not an issue.
 
 Please note that a matched template doesn't stop the matching process, so make sure the templates are unique enough if you don't want to
 match multiple templates.
+
+### FINISH: Add example ###
 
 =head2 Output Templates
 
 Output templates use L<Template::Toolkit>.  If you want a quick and dirty lesson on how they work, check out L<Template::Manual::Syntax>.  If 
 B<that> is too wordy for you, then just remember that variables are replaced with a C<<< [% var %] >>> syntax.
+
+### FINISH: Add example ###
 
 =head2 Mungers
 
@@ -334,7 +341,13 @@ This doesn't work on Windows.  Blame L<Proc::ProcessTable>.  Or rather, L<this b
 
 =head1 TODO
 
+=over
+
+=item *
+
 Moar IE<sol>O:
+
+=back
 
     Inputs            Outputs
     ------            -------
@@ -343,6 +356,18 @@ Moar IE<sol>O:
     File::CSV         File::CSV
     File::Text        File::Text
                       IRC
+
+=over
+
+=item *
+
+L<Pegex> support for input templates, maybe when we stop playing with the syntax :)
+
+=item *
+
+Multi-threaded andE<sol>or -processed inputsE<sol>outputs
+
+=back
 
 =head1 AVAILABILITY
 

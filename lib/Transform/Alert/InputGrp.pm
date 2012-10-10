@@ -1,6 +1,6 @@
 package Transform::Alert::InputGrp;
 
-our $VERSION = '0.90'; # VERSION
+our $VERSION = '0.90_001'; # VERSION
 # ABSTRACT: Base class for Transform::Alert input groups
 
 use sanity;
@@ -159,19 +159,23 @@ Transform::Alert::InputGrp - Base class for Transform::Alert input groups
 
 =head1 DESCRIPTION
 
-Insert description here...
+This is essentially a class used for handling C<<< Input >>> sections.  In the grand scheme of things, the classes follow this hierarchy:
 
-=head1 CAVEATS
+    transalert_ctl
+       Transform::Alert
+          TA::InputGrp
+             TA::Input::*
+             TA::TemplateGrp
+                TA::Output::* (referenced from the main TA object)
+          TA::Output::* (stored list only)
 
-Bad stuff...
+In fact, the configuration file is parsed recursively in this fashion.
+
+However, this isn't really a user-friendly interface.  So, shoo!
 
 =head1 SEE ALSO
 
-Other modules...
-
-=head1 ACKNOWLEDGEMENTS
-
-Thanks and stuff...
+L<Transform::Alert>, which is what you should really be reading...
 
 =head1 AVAILABILITY
 

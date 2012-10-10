@@ -1,6 +1,6 @@
 package Transform::Alert::Output::SNMP::Inform;
 
-our $VERSION = '0.90'; # VERSION
+our $VERSION = '0.90_001'; # VERSION
 # ABSTRACT: Transform alerts to SNMP inform requests
 
 use sanity;
