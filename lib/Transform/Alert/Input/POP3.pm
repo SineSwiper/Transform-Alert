@@ -77,7 +77,8 @@ sub get {
    my $num = shift @{$self->_list};
    my $pop = $self->_conn;
    
-   unless (my $amsg = $pop->get($num)) {
+   my $amsg = $pop->get($num);
+   unless ($amsg) {
       $self->log->error('Error grabbing POP3 message #'.$num.': '.$pop->message);
       return;
    }
