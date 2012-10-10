@@ -5,7 +5,7 @@ our $VERSION = '0.90'; # VERSION
 
 use sanity;
 use Moo::Role;
-use MooX::Types::MooseLike::Base 0.15 qw(HashRef Object);
+use MooX::Types::MooseLike::Base qw(HashRef Object);
 
 requires qw(open opened get eof close);
 

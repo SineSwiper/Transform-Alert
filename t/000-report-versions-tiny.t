@@ -49,16 +49,30 @@ sub pmver {
 }
 
 eval { $v .= pmver('App::Daemon','0.01') };
+eval { $v .= pmver('Class::Load','0.01') };
 eval { $v .= pmver('Config::General','2.38') };
 eval { $v .= pmver('Data::Dump','1.10') };
+eval { $v .= pmver('Devel::SimpleTrace','0.07') };
+eval { $v .= pmver('Email::Abstract','3.000') };
+eval { $v .= pmver('Email::Sender::Simple','any version') };
+eval { $v .= pmver('Email::Simple','2.004') };
 eval { $v .= pmver('File::Slurp','9999.14') };
 eval { $v .= pmver('List::AllUtils','0.01') };
 eval { $v .= pmver('Log::Log4perl','1.15') };
+eval { $v .= pmver('Mail::IMAPClient','3.03') };
+eval { $v .= pmver('Module::Metadata','1.000000') };
 eval { $v .= pmver('Moo','0.009001') };
-eval { $v .= pmver('MooX::Singleton','1.121160') };
-eval { $v .= pmver('MooX::Types::MooseLike::Base','0.15') };
+eval { $v .= pmver('MooX::Types::MooseLike','0.15') };
+eval { $v .= pmver('Net::SNMP','v6.0.0') };
+eval { $v .= pmver('Net::SNMPTrapd','0.01') };
 eval { $v .= pmver('Net::Syslog','0.04') };
+eval { $v .= pmver('Net::Syslogd','0.01') };
+eval { $v .= pmver('Path::Class','0.17') };
+eval { $v .= pmver('String::Escape','2010.002') };
+eval { $v .= pmver('Template','2.20') };
 eval { $v .= pmver('Test::CheckDeps','0.002') };
+eval { $v .= pmver('Test::LeakTrace','0.01') };
+eval { $v .= pmver('Test::Most','0.01') };
 eval { $v .= pmver('Test::UseAllModules','0.10') };
 eval { $v .= pmver('namespace::clean','0.06') };
 eval { $v .= pmver('sanity','0.91') };

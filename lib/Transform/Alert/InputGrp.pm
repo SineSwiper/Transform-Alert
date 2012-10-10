@@ -5,13 +5,18 @@ our $VERSION = '0.90'; # VERSION
 
 use sanity;
 use Moo;
-use MooX::Types::MooseLike::Base 0.15 qw(Str Int Num ScalarRef ArrayRef InstanceOf ConsumerOf);
+use MooX::Types::MooseLike::Base qw(Str Int Num ScalarRef ArrayRef InstanceOf ConsumerOf);
 
-use Storable 'dclone';
+use Transform::Alert::TemplateGrp;
+
 use Time::HiRes 'time';
+use Class::Load 'load_class';
+use String::Escape qw(elide printable);
+
+use namespace::clean;
 
 has daemon => (
-   is       => 'ro',
+   is       => 'rwp',
    isa      => InstanceOf['Transform::Alert'],
    weak_ref => 1,
    handles  => [ 'log' ],
@@ -36,8 +41,12 @@ has last_finished => (
    is       => 'rw',
    isa      => Num,
    lazy     => 1,
-   default  => sub { time; },
+   default  => sub { 0 },
 );
+sub time_left {
+   my $self = shift;
+   time - $self->last_finished + $self->interval;
+}
 
 around BUILDARGS => sub {
    my ($orig, $self) = (shift, shift);
@@ -50,21 +59,23 @@ around BUILDARGS => sub {
    # create input first
    my $name = delete $hash->{name};
    my $type = delete $hash->{type} || die "Input '$name' requires a Type!";
-   $hash->{input} = "Transform::Alert::Input::$type"->new(
+   my $class = "Transform::Alert::Input::$type";
+   load_class $class;
+   $hash->{input} = $class->new(
       connopts => delete $hash->{connopts}
    );
    
    # translate templates
-   $hash->{template} = [ $hash->{template} ] unless (ref $hash->{template} eq 'ARRAY');
-   $hash->{template} = [ map {
+   $hash->{template}  = [ $hash->{template} ] unless (ref $hash->{template} eq 'ARRAY');
+   $hash->{templates} = [ map {
       $_->{output_objs} = $outs;
       Transform::Alert::TemplateGrp->new($_);
-   } @{ $hash->{template} } ];
+   } @{ delete $hash->{template} } ];
    
    $orig->($self, $hash);
 };
 
-after BUILD => sub {
+sub BUILD {
    my $self = shift;
    $_->_set_in_group($self) for (@{ $self->templates });
    $self->input->_set_group($self);
@@ -82,17 +93,26 @@ sub process {
    }
    until ($in->eof) {
       # get a message
-      my $msg = $in->get;
+      my ($msg, $hash) = $in->get;
       unless (defined $msg) {
          $self->warn('Input error... bailing out of this process cycle!');
          $self->close_all;
          return;
       }
+      $log->debug('   Found message: '.printable(elide($$msg, 100)) );
       
       # start the matching process
       foreach my $tmpl (@{ $self->templates }) {
-         my $in_tmpl = '^'.$tmpl->text.'$';
-         $tmpl->send_all(dclone \%+) if ($$msg =~ $$in_tmpl);  # found one
+         if ($tmpl->preparsed) {
+            $tmpl->send_all($hash) if $hash;
+         }
+         else {
+            my $in_tmpl = '^'.${ $tmpl->text }.'$';
+            if ($$msg =~ $in_tmpl) {  # found one
+               my %vars = %+;  # untie
+               $tmpl->send_all(\%vars);
+            }
+         }
       }
    }
    $self->close_all;
@@ -128,7 +148,14 @@ Transform::Alert::InputGrp - Base class for Transform::Alert input groups
 
 =head1 SYNOPSIS
 
-    # code
+    # In your configuration
+    <Input [name]>
+       Type      [type]
+       Interval  60  # seconds (default)
+ 
+       # <ConnOpts> section; module-specific
+       # <Template> sections
+    </Input>
 
 =head1 DESCRIPTION
 

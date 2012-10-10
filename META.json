@@ -25,15 +25,26 @@
       "runtime" : {
          "requires" : {
             "App::Daemon" : "0.01",
+            "Class::Load" : "0.01",
             "Config::General" : "2.38",
             "Data::Dump" : "1.10",
+            "Email::Abstract" : "3.000",
+            "Email::Sender::Simple" : "0.000",
+            "Email::Simple" : "2.004",
             "File::Slurp" : "9999.14",
             "List::AllUtils" : "0.01",
             "Log::Log4perl" : "1.15",
+            "Mail::IMAPClient" : "3.03",
+            "Module::Metadata" : "1.000000",
             "Moo" : "0.009001",
-            "MooX::Singleton" : "1.121160",
-            "MooX::Types::MooseLike::Base" : "0.15",
+            "MooX::Types::MooseLike" : "0.15",
+            "Net::SNMP" : "v6.0.0",
+            "Net::SNMPTrapd" : "0.01",
             "Net::Syslog" : "0.04",
+            "Net::Syslogd" : "0.01",
+            "Path::Class" : "0.17",
+            "String::Escape" : "2010.002",
+            "Template" : "2.20",
             "namespace::clean" : "0.06",
             "perl" : "v5.10.1",
             "sanity" : "0.91"
@@ -41,7 +52,11 @@
       },
       "test" : {
          "requires" : {
+            "Devel::SimpleTrace" : "0.07",
+            "Net::Syslog" : "0.04",
             "Test::CheckDeps" : "0.002",
+            "Test::LeakTrace" : "0.01",
+            "Test::Most" : "0.01",
             "Test::UseAllModules" : "0.10"
          }
       }
@@ -51,16 +66,28 @@
          "file" : "lib/Transform/Alert.pm",
          "version" : "0.90"
       },
-      "Transform::Alert::App" : {
-         "file" : "lib/Transform/Alert/App.pm",
-         "version" : "0.90"
-      },
       "Transform::Alert::Input" : {
          "file" : "lib/Transform/Alert/Input.pm",
          "version" : "0.90"
       },
+      "Transform::Alert::Input::Dummy" : {
+         "file" : "lib/Transform/Alert/Input/Dummy.pm",
+         "version" : "0.90"
+      },
+      "Transform::Alert::Input::IMAP" : {
+         "file" : "lib/Transform/Alert/Input/IMAP.pm",
+         "version" : "0.90"
+      },
       "Transform::Alert::Input::POP3" : {
          "file" : "lib/Transform/Alert/Input/POP3.pm",
+         "version" : "0.90"
+      },
+      "Transform::Alert::Input::SNMPTrapd" : {
+         "file" : "lib/Transform/Alert/Input/SNMPTrapd.pm",
+         "version" : "0.90"
+      },
+      "Transform::Alert::Input::Syslogd" : {
+         "file" : "lib/Transform/Alert/Input/Syslogd.pm",
          "version" : "0.90"
       },
       "Transform::Alert::InputGrp" : {
@@ -69,6 +96,30 @@
       },
       "Transform::Alert::Output" : {
          "file" : "lib/Transform/Alert/Output.pm",
+         "version" : "0.90"
+      },
+      "Transform::Alert::Output::Email" : {
+         "file" : "lib/Transform/Alert/Output/Email.pm",
+         "version" : "0.90"
+      },
+      "Transform::Alert::Output::Null" : {
+         "file" : "lib/Transform/Alert/Output/Null.pm",
+         "version" : "0.90"
+      },
+      "Transform::Alert::Output::SNMP" : {
+         "file" : "lib/Transform/Alert/Output/SNMP.pm",
+         "version" : "0.90"
+      },
+      "Transform::Alert::Output::SNMP::Inform" : {
+         "file" : "lib/Transform/Alert/Output/SNMP/Inform.pm",
+         "version" : "0.90"
+      },
+      "Transform::Alert::Output::SNMP::Set" : {
+         "file" : "lib/Transform/Alert/Output/SNMP/Set.pm",
+         "version" : "0.90"
+      },
+      "Transform::Alert::Output::SNMP::Trap" : {
+         "file" : "lib/Transform/Alert/Output/SNMP/Trap.pm",
          "version" : "0.90"
       },
       "Transform::Alert::Output::Syslog" : {
@@ -91,7 +142,7 @@
          "url" : "git://github.com/SineSwiper/Transform-Alert.git",
          "web" : "https://github.com/SineSwiper/Transform-Alert"
       },
-      "x_irc" : "irc://irc.perl.org/#whatever"
+      "x_irc" : "irc://irc.perl.org/#sanity"
    },
    "version" : "0.90",
    "x_Dist_Zilla" : {

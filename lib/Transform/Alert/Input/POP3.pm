@@ -5,9 +5,10 @@ our $VERSION = '0.90'; # VERSION
 
 use sanity;
 use Moo;
-use MooX::Types::MooseLike::Base 0.15 qw(Str Int ArrayRef HashRef InstanceOf);
+use MooX::Types::MooseLike::Base qw(Str Int ArrayRef HashRef InstanceOf);
 
 use Net::POP3;
+use Email::Simple;
 
 with 'Transform::Alert::Input';
 
@@ -82,8 +83,14 @@ sub get {
    }
    $pop->delete($num);
    
-   my $msg = join '', @$amsg;   
-   return \$msg;
+   my $msg = join '', @$amsg;
+   my $pmsg = Email::Simple->new($msg);
+   my $hash = {
+      $pmsg->header_obj->header_pairs,
+      BODY => $pmsg->body,
+   };
+   
+   return (\$msg, $hash);
 }
 
 sub eof {
@@ -141,6 +148,21 @@ to one or more outputs, depending on the group configuration.
 See L<Net::POP3> for a list of the ConnOpts section parameters.  The C<<< Username >>>
 and C<<< Password >>> options are included in this set, but not used in the POP3
 object's construction.
+
+=head1 OUTPUTS
+
+=head2 Text
+
+Full text of the message, including headers.
+
+=head2 Preparsed Hash
+
+    {
+       # Header pairs, as per Email::Simple::Header
+       Email::Simple->new($msg)->header_obj->header_pairs,
+ 
+       BODY => $str,
+    }
 
 =head1 CAVEATS
 

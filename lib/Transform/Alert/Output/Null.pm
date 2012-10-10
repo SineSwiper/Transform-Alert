@@ -1,12 +1,17 @@
-package Transform::Alert::App;
+package Transform::Alert::Output::Null;
 
 our $VERSION = '0.90'; # VERSION
-# ABSTRACT: Application class for Transform::Alert
+# ABSTRACT: Transform alerts to NULL space
 
 use sanity;
+use Moo;
 
-### FIXME: Need logging prefixes ###
+with 'Transform::Alert::Output';
 
+sub open   { 1 }
+sub opened { 1 }
+sub send   { 1 }
+sub close  { 1 }
 
 42;
 
@@ -18,23 +23,21 @@ use sanity;
 
 =head1 NAME
 
-Transform::Alert::App - Application class for Transform::Alert
+Transform::Alert::Output::Null - Transform alerts to NULL space
+
+=head1 SYNOPSIS
+
+    # In your configuration
+    <Output null>
+       Type     Null
+       Template ""
+       <ConnOpts/>
+    </Output>
 
 =head1 DESCRIPTION
 
-Insert description here...
-
-=head1 CAVEATS
-
-Bad stuff...
-
-=head1 SEE ALSO
-
-Other modules...
-
-=head1 ACKNOWLEDGEMENTS
-
-Thanks and stuff...
+This output type is mainly used for testing.  It can have its
+uses to send messages to the bitbucket, though.
 
 =head1 AVAILABILITY
 

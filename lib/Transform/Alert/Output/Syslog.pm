@@ -5,7 +5,7 @@ our $VERSION = '0.90'; # VERSION
 
 use sanity;
 use Moo;
-use MooX::Types::MooseLike::Base 0.15 qw(Str Int ArrayRef HashRef InstanceOf);
+use MooX::Types::MooseLike::Base qw(InstanceOf);
 
 use Net::Syslog;
 
@@ -14,28 +14,32 @@ with 'Transform::Alert::Output';
 has _conn => (
    is        => 'rw',
    isa       => InstanceOf['Net::Syslog'],
+   lazy      => 1,
+   default   => sub { Net::Syslog->new( %{shift->connopts} ) },
    predicate => 1,
-   clearer   => 1,
 );
 
-sub open {
-   my $self = shift;
-   $self->_conn(
-      Net::Syslog->new( %{$self->connopts} )
-   );
+# Net::Syslog is a bit picky about its case-sensitivity
+around BUILDARGS => sub {
+   my ($orig, $self) = (shift, shift);
+   my $hash = shift;
+   $hash = { $hash, @_ } unless ref $hash;
 
-   return 1;
-}
+   foreach my $keyword (qw{ Name Facility Priority Pid SyslogPort SyslogHost }) {
+      $hash->{connopts}{$keyword} = delete $hash->{connopts}{lc $keyword} if (exists $hash->{connopts}{lc $keyword});
+   }
+   
+   $orig->($self, $hash);
+};
 
-# Net::Syslog::send creates new IO::Sockets each time, so 
-# just a simple check here...
-sub opened { $_[0]->_has_conn; }
+sub open   { shift->_conn; }
+sub opened { shift->_has_conn; }
 
 sub send {
    my ($self, $msg) = @_;
    my $syslog = $self->_conn;
    
-   unless (eval { $syslog->send($msg) }) {   
+   unless (eval { $syslog->send($$msg) }) {   
       $self->log->error('Error sending Syslog message: '.$@);
       return;
    }
@@ -61,7 +65,7 @@ Transform::Alert::Output::Syslog - Transform alerts to Syslog alerts
     # In your configuration
     <Output test>
        Type          Syslog
-       TemplateFile  outputs/test.txt
+       TemplateFile  outputs/test.tt
  
        # See Net::Syslog->new
        <ConnOpts>
@@ -77,7 +81,7 @@ Transform::Alert::Output::Syslog - Transform alerts to Syslog alerts
 
 This output type will send a syslog alert for each converted input.
 
-See L<Net::Syslog> for a list of the Options section parameters.
+See L<Net::Syslog> for a list of the ConnOpts section parameters.
 
 =head1 CAVEATS
 
