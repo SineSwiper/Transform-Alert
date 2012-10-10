@@ -82,7 +82,7 @@ sub get {
    my $uid  = shift @{$self->_list};
    my $imap = $self->_conn;
    
-   my $msg = $imap->message_string($uid) || do { $self->log->error('Error grabbing IMAP message '.$uid.': '.$imap->LastError); return; }
+   my $msg = $imap->message_string($uid) || do { $self->log->error('Error grabbing IMAP message '.$uid.': '.$imap->LastError); return; };
    my $pmsg = Email::Simple->new($msg);
    my $hash = {
       $pmsg->header_obj->header_pairs,
@@ -91,7 +91,7 @@ sub get {
    
    # Move message
    if ($self->has_parsed_folder) {
-      $self->move( $self->parsed_folder, $uid ) || do { $self->log->error('Error moving IMAP message '.$uid.': '.$imap->LastError); return; }
+      $self->move( $self->parsed_folder, $uid ) || do { $self->log->error('Error moving IMAP message '.$uid.': '.$imap->LastError); return; };
    }
    # (if not, message_string will auto-set the Seen flag.)
    

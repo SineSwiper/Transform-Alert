@@ -46,3 +46,5 @@ foreach my $str (
 no_leaks_ok {
    $ta->heartbeat for (1 .. 10);
 } 'no memory leaks';
+
+$log_file->remove;

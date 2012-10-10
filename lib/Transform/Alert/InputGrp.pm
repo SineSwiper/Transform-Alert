@@ -152,19 +152,23 @@ __END__
    </Input>
  
 = DESCRIPTION
- 
-Insert description here...
 
-= CAVEATS
+This is essentially a class used for handling {Input} sections.  In the grand scheme of things, the classes follow this hierarchy:
 
-Bad stuff...
+   transalert_ctl
+      Transform::Alert
+         TA::InputGrp
+            TA::Input::*
+            TA::TemplateGrp
+               TA::Output::* (referenced from the main TA object)
+         TA::Output::* (stored list only)
+
+In fact, the configuration file is parsed recursively in this fashion.
+
+However, this isn't really a user-friendly interface.  So, shoo!
 
 = SEE ALSO
 
-Other modules...
-
-= ACKNOWLEDGEMENTS
-
-Thanks and stuff...
+[Transform::Alert], which is what you should really be reading...
 
 =end wikidoc

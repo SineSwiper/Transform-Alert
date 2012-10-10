@@ -43,3 +43,5 @@ no_leaks_ok {
    $syslog->send('Oh-dot-oh-oh-oh-oh-oh-oh-oh-oh-oh-oh-oh-oh-oh-oh-oh-oh-oh-oh-four-three-three-six-eight-oh-eight-oh-six-eight-nine-nine-four-two');
    $ta->heartbeat;
 } 'no memory leaks';
+
+$log_file->remove;

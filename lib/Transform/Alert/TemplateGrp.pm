@@ -172,18 +172,22 @@ __END__
  
 = DESCRIPTION
  
-Insert description here...
+This is essentially a class used for handling {Template} sections.  In the grand scheme of things, the classes follow this hierarchy:
 
-= CAVEATS
+   transalert_ctl
+      Transform::Alert
+         TA::InputGrp
+            TA::Input::*
+            TA::TemplateGrp
+               TA::Output::* (referenced from the main TA object)
+         TA::Output::* (stored list only)
 
-Bad stuff...
+In fact, the configuration file is parsed recursively in this fashion.
+
+However, this isn't really a user-friendly interface.  So, shoo!
 
 = SEE ALSO
 
-Other modules...
-
-= ACKNOWLEDGEMENTS
-
-Thanks and stuff...
+[Transform::Alert], which is what you should really be reading...
 
 =end wikidoc
