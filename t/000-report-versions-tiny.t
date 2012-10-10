@@ -70,7 +70,6 @@ eval { $v .= pmver('Net::Syslogd','0.01') };
 eval { $v .= pmver('Path::Class','0.17') };
 eval { $v .= pmver('String::Escape','2010.002') };
 eval { $v .= pmver('Template','2.20') };
-eval { $v .= pmver('Test::CheckDeps','0.002') };
 eval { $v .= pmver('Test::LeakTrace','0.01') };
 eval { $v .= pmver('Test::Most','0.01') };
 eval { $v .= pmver('Test::UseAllModules','0.10') };

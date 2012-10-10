@@ -14,7 +14,6 @@ my %WriteMakefileArgs = (
   "BUILD_REQUIRES" => {
     "Devel::SimpleTrace" => "0.07",
     "Net::Syslog" => "0.04",
-    "Test::CheckDeps" => "0.002",
     "Test::LeakTrace" => "0.01",
     "Test::Most" => "0.01",
     "Test::UseAllModules" => "0.10"

@@ -31,7 +31,6 @@ lib/Transform/Alert/Output/SNMP/Set.pm
 lib/Transform/Alert/Output/SNMP/Trap.pm
 lib/Transform/Alert/Output/Syslog.pm
 lib/Transform/Alert/TemplateGrp.pm
-t/00-check-deps.t
 t/00-load.t
 t/000-report-versions-tiny.t
 t/51-nulltest-single.t

@@ -54,7 +54,6 @@
          "requires" : {
             "Devel::SimpleTrace" : "0.07",
             "Net::Syslog" : "0.04",
-            "Test::CheckDeps" : "0.002",
             "Test::LeakTrace" : "0.01",
             "Test::Most" : "0.01",
             "Test::UseAllModules" : "0.10"
@@ -254,11 +253,6 @@
             "class" : "Dist::Zilla::Plugin::Test::CPAN::Meta::JSON",
             "name" : "@Filter/Test::CPAN::Meta::JSON",
             "version" : "0.003"
-         },
-         {
-            "class" : "Dist::Zilla::Plugin::Test::CheckDeps",
-            "name" : "@Filter/Test::CheckDeps",
-            "version" : "0.005"
          },
          {
             "class" : "Dist::Zilla::Plugin::Test::Portability",
