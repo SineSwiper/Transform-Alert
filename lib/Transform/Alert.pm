@@ -181,8 +181,15 @@ __END__
  
 = DESCRIPTION
  
-Ever have a need to transform one kind of alert/message into another?  IE: Taking a bunch of alert emails and converting them into Syslogs, so
-that they can be sent to a real EMS.  Then this platform delivers.
+Ever have a need to transform one kind of alert/message into another?  For example:
+
+* Taking a bunch of alert emails and converting them into Syslogs
+* Converting Syslog alerts to SNMP traps
+* Converting SNMP traps to Syslogs
+* Traps to email
+* Anything to anything
+
+Then this platform delivers.
 
 Transform::Alert is a highly extensible platform to transform alerts from anything to anything else.  Everything is ran through a configuration
 file, a couple of templates, and [Transform::Alert's daemon app|transalert_ctl].
@@ -357,7 +364,7 @@ Here's an example that looks similar to the input one above:
 
 == Mungers
 
-Mungers are an optional second piece to input template structure.  Regular expressions, as powerful as they are with finding and capturing
+Mungers are an optional second piece to the input template structure.  Regular expressions, as powerful as they are with finding and capturing
 information, only do just that.  Sometimes you need to warp the information you've captured to fit the mold that the output can use.  Or 
 sometimes you need to validate the input in a better fashion than REs can provide.  Mungers fit both of those roles.
 

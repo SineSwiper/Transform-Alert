@@ -8,7 +8,7 @@ use TestDaemon;
 
 my ($ta, $log_file) = TestDaemon->new(qw{ nulltest nulltest-multi });
 
-lives_ok { $ta->heartbeat for (1 .. 10) } '10 heartbeats';
+lives_ok { $ta->heartbeat for (1 .. 30) } '30 heartbeats';
 
 # check the log for the right phrases
 my $log = $log_file->slurp;
@@ -40,7 +40,7 @@ foreach my $str (
    'Sending alert for "null2"',
    'Sending alert for "null1"',
 ) {
-   like($log, qr/\Q$str\E/, "Found - $str");
+   ok($log =~ qr/\Q$str\E/, "Found - $str");
 }
 
 no_leaks_ok {

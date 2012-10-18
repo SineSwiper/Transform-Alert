@@ -11,6 +11,7 @@ my ($ta, $log_file) = TestDaemon->new(qw{ syslog syslog });
 # let's start the loop with a message
 use Net::Syslog 0.04;  # 0.04 has rfc3164 flag
 
+my $msg = 'Two-three-oh-five-eight-four-three-oh-oh-nine-two-one-three-six-nine-three-nine-five-one';
 $ta->heartbeat;  # starts the daemon for the first time
 my $syslog = Net::Syslog->new(
    Name       => 'TransformAlert',
@@ -20,7 +21,7 @@ my $syslog = Net::Syslog->new(
    SyslogPort => 51437,
    rfc3164    => 1,
 );
-$syslog->send('Two-three-oh-five-eight-four-three-oh-oh-nine-two-one-three-six-nine-three-nine-five-one');
+$syslog->send($msg);
 
 lives_ok { $ta->heartbeat } 'heartbeat';
 
@@ -29,18 +30,22 @@ my $log = $log_file->slurp;
 
 foreach my $str (
    'severity   => "Informational",',
-   'remoteaddr => "127.0.0.244",',
+   'remoteaddr => "127.0.0.',  # some OSs might force the address back to 127.0.0.1
    'priority   => 158,',
-   'message    => "Two-three-oh-five-eight-four-three-oh-oh-nine-two-one-three-six-nine-three-nine-five-one",',
+   'message    => "'.$msg.'",',
    'facility   => "local3",',
    'Sending alert for "syslog"',
    'Munger cancelled output',
 ) {
-   like($log, qr/\Q$str\E/, "Found - $str");
+   ok($log =~ qr/\Q$str\E/, "Found - $str");
 }
 
+$msg = 'Oh-dot-oh-oh-oh-oh-oh-oh-oh-oh-oh-oh-oh-oh-oh-oh-oh-oh-oh-oh-four-three-three-six-eight-oh-eight-oh-six-eight-nine-nine-four-two';
+$syslog->send($msg);
+$ta->heartbeat;
+
 no_leaks_ok {
-   $syslog->send('Oh-dot-oh-oh-oh-oh-oh-oh-oh-oh-oh-oh-oh-oh-oh-oh-oh-oh-oh-oh-four-three-three-six-eight-oh-eight-oh-six-eight-nine-nine-four-two');
+   $syslog->send($msg);
    $ta->heartbeat;
 } 'no memory leaks';
 

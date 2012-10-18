@@ -28,14 +28,14 @@ foreach my $str (
    '{ thingy => "cheese sandwich" }',
    '{ thingy => "atomic playboy" }',
 ) {
-   like($log, qr/\Q$str\E/, "Found - $str");
+   ok($log =~ qr/\Q$str\E/, "Found - $str");
 }
 
 foreach my $str (
    '{ item => "Ich bin ein Berliner!" }',
    '{ thingy => "Ich bin ein Berliner!" }',
 ) {
-   unlike($log, qr/\Q$str\E/, "Didn't find - $str");
+   ok($log !~ qr/\Q$str\E/, "Didn't find - $str");
 }
 
 no_leaks_ok {
