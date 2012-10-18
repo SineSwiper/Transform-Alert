@@ -8,6 +8,8 @@ Makefile.PL
 README.html
 README.pod
 bin/transalert_ctl
+corpus/email/SyslogMunger.pm
+corpus/email/pop3.conf
 corpus/nulltest/Munger.pm
 corpus/nulltest/dummy-template.re
 corpus/nulltest/nulltest-multi.conf
