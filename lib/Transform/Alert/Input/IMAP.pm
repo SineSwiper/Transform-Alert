@@ -1,6 +1,6 @@
 package Transform::Alert::Input::IMAP;
 
-our $VERSION = '0.90_001'; # VERSION
+our $VERSION = '0.90_002'; # VERSION
 # ABSTRACT: Transform alerts from IMAP messages
 
 use sanity;

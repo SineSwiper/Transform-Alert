@@ -1,6 +1,6 @@
 package Transform::Alert::Output::SNMP::Set;
 
-our $VERSION = '0.90_001'; # VERSION
+our $VERSION = '0.90_002'; # VERSION
 # ABSTRACT: Transform alerts to SNMP set requests
 
 use sanity;

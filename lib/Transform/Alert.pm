@@ -1,6 +1,6 @@
 package Transform::Alert;
 
-our $VERSION = '0.90_001'; # VERSION
+our $VERSION = '0.90_002'; # VERSION
 # ABSTRACT: Transform alerts from one type to another type
 
 use sanity;
@@ -472,7 +472,7 @@ those networks/channels and get help:
 
 irc.perl.org
 
-You can connect to the server at 'irc.perl.org' and join this channel: #distzilla then talk to this person for help: SineSwiper.
+You can connect to the server at 'irc.perl.org' and join this channel: #web-simple then talk to this person for help: SineSwiper.
 
 =back
 
