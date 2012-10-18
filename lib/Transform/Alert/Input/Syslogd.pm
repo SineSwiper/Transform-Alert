@@ -97,22 +97,12 @@ Transform::Alert::Input::Syslogd - Transform alerts from an internal Syslog daem
 
 =head1 DESCRIPTION
 
-This input type will spawn a syslog listener and process each message through the 
-input template engine.  If it finds a match, the results of the match are sent
-to one or more outputs, depending on the group configuration.
+This input type will spawn a syslog listener and process each message through the input template engine.  If it finds a match, the results of
+the match are sent to one or more outputs, depending on the group configuration.
 
-See L<Net::Syslogd> for a list of the ConnOpts section parameters.  The C<<< Timeout >>>
-parameter is basically ignored, since C<<< get_message >>> calls will use a timeout of
-
-=over
-
-=item 1.
-
-(ie: instant).  This is so that the main daemon doesn't bother waiting for
-messages during each heartbeat.  As such, the C<<< Interval >>> setting should be set
-very low.  (But, not zero; that would be unwise...)
-
-=back
+See L<Net::Syslogd> for a list of the ConnOpts section parameters.  The C<<< Timeout >>> parameter is basically ignored, since C<<< get_message >>> calls
+will use a timeout of 0 (ie: instant).  This is so that the main daemon doesn't bother waiting for messages during each heartbeat.  As such,
+the C<<< Interval >>> setting should be set very low.  (But, not zero; that would be unwise...)
 
 =head1 OUTPUTS
 
