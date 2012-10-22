@@ -226,7 +226,7 @@ can use a relative path, in which case will start at the config path.
 
    <Input [name]>  # one or more
       Type      [type]
-      Interval  [second]  # optional
+      Interval  [seconds]  # optional; default is 60s
       
       # <ConnOpts> section; module-specific
       # <Template> sections
@@ -321,14 +321,14 @@ are put in the right directory.
 Input templates are basically big multi-line regular expressions.  These are NOT {/x} whitespace-insensitive regular expressions, as those
 would make copy/pasting large bodies of text more difficult.  (There's an assumption that most input templates will have more static text than
 freeform RE parts.)  Besides, you can still use a {(?x...)} construct.  Also, leading and trailing whitespace is removed, so stray whitespace
-should not an issue there.  RE templates are also put into a {^$re$}, with begin/end symbols, which can easily be overriden with {.*}.
+should not be an issue there.  RE templates are also put into a {^$re$}, with begin/end symbols, which can easily be overriden with {.*}.
 
 Please note that a matched template doesn't stop the matching process, so make sure the templates are unique enough if you don't want to
 match multiple templates.
 
 Here's an example using an email template:
 
-   \QTo: <alert@foobar.org>
+   [\s\S]*\QTo: <alert@foobar.org>
    From: <alert@foobar.org>
    Subject: Email Alert - \E(?<subject>[^\n]+)
    Date: (?<date>[^\n]+)
@@ -339,6 +339,7 @@ Here's an example using an email template:
    \QName    :\E (?<name>\w+)
    \QProblem :\E (?<problem>[^\n]+)
    \QTicket #:\E (?<ticket>\w+)
+   .*
 
 Of course, this is taking some assumptions about the order and format of headers, but if this is coming from an automated platform that uses
 the same mail server, there really shouldn't be much change at all.  If you need finer control of the verification process, you can make use

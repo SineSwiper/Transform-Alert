@@ -17,7 +17,7 @@ my $syslog = Net::Syslog->new(
    Name       => 'TransformAlert',
    Facility   => 'local3',
    Priority   => 'info',
-   SyslogHost => '127.0.0.244',
+   SyslogHost => 'localhost',
    SyslogPort => 51437,
    rfc3164    => 1,
 );
@@ -30,7 +30,7 @@ my $log = $log_file->slurp;
 
 foreach my $str (
    'severity   => "Informational",',
-   'remoteaddr => "127.0.0.',  # some OSs might force the address back to 127.0.0.1
+   'remoteaddr => ',  # some OSs might force the address back to 127.0.0.1 or say "localhost"
    'priority   => 158,',
    'message    => "'.$msg.'",',
    'facility   => "local3",',
