@@ -13,7 +13,7 @@ use File::Slurp 'read_file';
 use lib dir('lib')->absolute->stringify;  # paths keep changing...
 
 sub new {
-   my ($class, $dir, $name) = @_;
+   my ($class, $dir, $name, $conf_insert) = @_;
 
    my $conf_file = dir()->file('corpus', $dir, "$name.conf")->resolve->absolute;
    my $log_file  = $conf_file->dir->file("$name.log");
@@ -39,8 +39,6 @@ sub new {
       $log->logdie(@_);
    };
 
-   ###### Null test (single) ######
-
    # config file loading
    my $conf = {
       Config::General->new(
@@ -48,6 +46,14 @@ sub new {
          -LowerCaseNames => 1,
       )->getall
    };
+
+   # configuration inserts, if any
+   if ($conf_insert) {
+      foreach my $path (keys %$conf_insert) {
+         my $val = $conf_insert->{$path};
+         eval "\$conf->$path = \$val;";
+      }
+   }
 
    # change the working directory to the configuration file,
    # so that BaseDir can use relative paths
