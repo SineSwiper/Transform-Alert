@@ -7,7 +7,7 @@ use sanity;
 use Moo;
 use MooX::Types::MooseLike::Base qw(Str ConsumerOf);
 
-use Email::Sender::Simple;
+use Email::Sender::Simple 'sendmail';
 use Email::Abstract;
 use Class::Load 'load_class';
 
@@ -53,7 +53,7 @@ sub send {
    my ($self, $msg) = @_;
    my $email = Email::Abstract->new($msg);  # string ref
    
-   unless (eval { Email::Sender::Simple::sendmail($email, { transport => $self->_transport }) }) {
+   unless (eval { sendmail($email, { transport => $self->_transport }) }) {
       $self->log->error('Error sending Email message: '.$@);
       return;
    }

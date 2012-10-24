@@ -44,15 +44,22 @@ around BUILDARGS => sub {
 
    $hash->{username} = delete $hash->{connopts}{username};
    $hash->{password} = delete $hash->{connopts}{password};
+
+   # Net::POP3 is a bit picky about its case-sensitivity
+   foreach my $keyword (qw{ Host ResvPort Timeout Debug }) {
+      $hash->{connopts}{$keyword} = delete $hash->{connopts}{lc $keyword} if (exists $hash->{connopts}{lc $keyword});
+   }
    
    $orig->($self, $hash);
 };
 
 sub open {
    my $self = shift;
-   my $pop  = $self->_conn(
-      Net::POP3->new( %{$self->connopts} )
-   );
+   my $pop  = Net::POP3->new( %{$self->connopts} ) || do {
+      $self->log->error('POP3 New failed: '.$@);
+      return;
+   };
+   $self->_conn($pop);
    
    unless ( $pop->login($self->username, $self->password) ) {
       $self->log->error('POP3 Login failed: '.$pop->message);

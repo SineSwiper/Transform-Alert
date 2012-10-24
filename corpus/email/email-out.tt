@@ -1,4 +1,4 @@
-[% USE env = EnvHash %]
+[%- USE env = EnvHash -%]
 To: [% env.TATEST_EMAIL_ADDY %]
 From: [% env.TATEST_EMAIL_ADDY %]
 Subject: Email Alert - [% subject %]
