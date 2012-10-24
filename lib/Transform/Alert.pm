@@ -3,8 +3,8 @@ package Transform::Alert;
 # VERSION
 # ABSTRACT: Transform alerts from one type to another type
 
-use sanity;
-use Moo;
+use sanity 0.94;
+use Moo 1.000000;
 use MooX::Types::MooseLike 0.15;  # ::Base got no $VERSION
 use MooX::Types::MooseLike::Base qw(Str HashRef ScalarRef ArrayRef InstanceOf ConsumerOf);
 
@@ -12,11 +12,11 @@ use MooX::Types::MooseLike::Base qw(Str HashRef ScalarRef ArrayRef InstanceOf Co
 
 use Transform::Alert::InputGrp;
 
-use Time::HiRes 'time';
+use Time::HiRes    'time';
 use List::AllUtils 'min';
-use File::Slurp 'read_file';
-use Storable 'dclone';
-use Class::Load 'load_class';
+use File::Slurp    'read_file';
+use Storable       'dclone';
+use Class::Load    0.17 ('load_class');  # 0.17 = wheezy's version
 
 use namespace::clean;
 
