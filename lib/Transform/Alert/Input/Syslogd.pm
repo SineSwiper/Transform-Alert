@@ -7,7 +7,7 @@ use sanity;
 use Moo;
 use MooX::Types::MooseLike::Base qw(InstanceOf);
 
-use Net::Syslogd;
+use Net::Syslogd 0.04;
 
 with 'Transform::Alert::Input';
 

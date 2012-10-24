@@ -7,7 +7,7 @@ use sanity;
 use Moo;
 use MooX::Types::MooseLike::Base qw(Bool Str ArrayRef ScalarRef HashRef InstanceOf ConsumerOf);
 
-use Template;
+use Template 2.24;
 use Data::Dump 'pp';
 use File::Slurp 'read_file';
 use Module::Load;  # yes, using both Class::Load and Module::Load, as M:L will load files
