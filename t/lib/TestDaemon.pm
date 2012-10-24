@@ -68,7 +68,6 @@ sub new {
 }
 
 use Test::Most;
-use Test::LeakTrace;
 use JSONY;
 use Path::Class;
 use Time::HiRes 'sleep';
@@ -128,12 +127,7 @@ sub email_test {
          sleep $wait if ($wait > 0);
       };
    } '3 heartbeats';
-
-   no_leaks_ok {  # might as well test this early, since this is a long test
-      my $wait = $ta->heartbeat;
-      sleep $wait if ($wait > 0);
-   } 'no memory leaks';
-
+   
    # check the log for the right phrases
    my $log = $log_file->slurp;
 

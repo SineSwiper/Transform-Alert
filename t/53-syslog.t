@@ -1,6 +1,5 @@
 use sanity;
-use Test::Most tests => 11;
-use Test::LeakTrace;
+use Test::Most tests => 10;
 
 use Path::Class;
 use lib dir(qw{ t lib })->stringify;
@@ -53,10 +52,5 @@ $ta->heartbeat;
 
 my $is_pass = Test::More->builder->is_passing;
 explain $log unless ($is_pass);
-
-no_leaks_ok {
-   $syslog->send($msg);
-   $ta->heartbeat;
-} 'no memory leaks';
 
 $log_file->remove if ($is_pass);
