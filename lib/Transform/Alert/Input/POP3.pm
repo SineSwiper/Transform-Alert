@@ -8,7 +8,7 @@ use Moo;
 use MooX::Types::MooseLike::Base qw(Str Int ArrayRef HashRef InstanceOf);
 
 use Net::POP3;
-use Email::Simple;
+use Email::MIME;
 
 with 'Transform::Alert::Input';
 
@@ -92,10 +92,13 @@ sub get {
    $pop->delete($num);
    
    my $msg = join '', @$amsg;
-   my $pmsg = Email::Simple->new($msg);
+   $msg =~ s/\r//g;
+   my $pmsg = Email::MIME->new($msg);
+   my $body = $pmsg->body_str;
+   $body =~ s/\r//g;
    my $hash = {
       $pmsg->header_obj->header_pairs,
-      BODY => $pmsg->body,
+      BODY => $body,
    };
    
    return (\$msg, $hash);
@@ -155,7 +158,7 @@ object's construction.
 
 == Text
 
-Full text of the message, including headers.
+Full text of the message, including headers.  All CRs are stripped.
 
 == Preparsed Hash
 
@@ -163,11 +166,14 @@ Full text of the message, including headers.
       # Header pairs, as per Email::Simple::Header
       Email::Simple->new($msg)->header_obj->header_pairs,
       
-      BODY => $str,
+      # decoded via Email::MIME->new($msg)->body_str
+      # (all \r are stripped)
+      BODY => $str,  
    }
 
 = CAVEATS
 
-All messages are deleted from the system, whether it was matched or not.
+All messages are deleted from the system, whether it was matched or not.  If you
+need to save your messages, you should consider using [IMAP|Transform::Alert::Input::IMAP].
 
 =end wikidoc

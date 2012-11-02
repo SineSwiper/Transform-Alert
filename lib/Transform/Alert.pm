@@ -250,10 +250,9 @@ The engine may someday be changed to have multi-processed inputs, but the need i
 
    <Input ...>
       <Template>  # one or more
-         # only use one of these options
-         TemplateFile  [file]    
-         Template      "[String]"
-         Preparsed     1
+         # Template/File can be optional
+         TemplateFile  [file]      # not used with Template
+         Template      "[String]"  # not used with TemplateFile
          
          Munger        [file] [class]->[method]  # optional
          OutputName    test_out    # one or more
@@ -263,12 +262,11 @@ The engine may someday be changed to have multi-processed inputs, but the need i
 All {Input} sections must have one or more {Template} sections.  (In this case, this is an input template.)  As messages are being processed,
 each message is tested on all of the templates.
 
-All templates must either have a {TemplateFile}, {Template}, or {Preparsed} option.  (These are mutually excusive.)  In most cases, you should
-stick with file-based templates, as inline templates are whitespace sensitive, and should only be used for single line REs.
+All templates must either have a {TemplateFile} or {Template} option.  In most cases, you should stick with file-based templates, as inline
+templates are whitespace sensitive, and should only be used for single line REs.
 
-If you set the {Preparsed} option, a template file is not used.  Instead, a hash is passed directly from the input (instead of text).  Without
-a Munger to validate the hash, all preparsed templates will be accepted (and sent to the output), as long as it passes data.  For a structure
-of the hash passed, look at the documentation for that input module.
+If you don't set a Template option, a template file is not used.  Without a Munger to validate the hash, these templates will be accepted (and
+sent to the output), as long as it passes data.
 
 The optional {Munger} option can be used to specify a module used in changing the variables between the input and output.  (More details about
 Mungers further down.)  The option itself can be expressed in a number of ways:
@@ -283,6 +281,8 @@ Mungers further down.)  The option itself can be expressed in a number of ways:
 If a class isn't specified, the first package name found in the file is used.  If the method is missing, the default is {munge}.  If there
 isn't a file specified, it will try to load the class like {use/require}.  (Technically, you could take advantage of the {.} path in {%INC},
 but it's better to just provide the filename.)
+
+If both a {Template}/{TemplateFile} & {Munger} option are passed, it will test both forms as an AND-based match, testing the text form first.
 
 The {OutputName} options provide the name of the Output sources to use after a template match is found.  (These sources are defined below.)
 More that one option means that the alert will be sent to multiple sources.
@@ -343,25 +343,38 @@ Here's an example using an email template:
 
 Of course, this is taking some assumptions about the order and format of headers, but if this is coming from an automated platform that uses
 the same mail server, there really shouldn't be much change at all.  If you need finer control of the verification process, you can make use
-of [Mungers|/Mungers] and possibly the [Preparsed option|/Template].
+of [Mungers|/Mungers].
 
 == Output Templates
 
 Output templates use [Template::Toolkit].  If you want a quick and dirty lesson on how they work, check out [Template::Manual::Syntax].  If 
-*that* is too wordy for you, then just remember that variables are replaced with a {[% var %]} syntax.
+*that* is too wordy for you, then just remember that variables are replaced with a {[% t.var %]} syntax.
 
-Here's an example that looks similar to the input one above:
+The variables passed to the Output (or Munger, if specified) will look like this:
 
-   To: [% to %]
-   From: [% from %]
-   Subject: Email Alert - [% subject %]
-   Date: [% date %]
+   {
+      t => {
+         # text form variables acquired from the input RE template
+      },
+      p => {
+         # preparsed hash variables, sent by the Input module
+      }
+   }
+
+For a structure of the {p} hash passed, look at the documentation for that input module.
+
+Here's an example output template that looks similar to the input one above:
+
+   To: [% t.to %]
+   From: [% t.from %]
+   Subject: Email Alert - [% t.subject %]
+   Date: [% t.date %]
    
    We found a problem on this device:
    
-   Name    : [% name %]
-   Problem : [% problem %]
-   Ticket #: [% ticket %]
+   Name    : [% t.name %]
+   Problem : [% t.problem %]
+   Ticket #: [% t.ticket %]
 
 == Mungers
 
@@ -375,9 +388,9 @@ from the test platform:
    package TestMunger;
 
    sub munge {
-      my ($class, $vars) = @_;
+      my ($class, $vars, $tmpl_grp) = @_;
       
-      $vars->{thingy} = delete $vars->{item};
+      $vars->{t}{thingy} = delete $vars->{t}{item};
       
       return int rand(2) ? $vars : undef;
    }
@@ -390,7 +403,11 @@ could just as easily do anything Perl can do to transform and validate the data.
 All mungers are called by their class (ie: {TestMunger->munge}), so all of them should have a package name.  They should also return either
 {undef} (as a rejection) or the variable list (as a hashref).
 
-A munger could also become the *primary* piece for input transformation/validation using the [Preparsed option|/Template].
+A munger could also become the *primary* piece for input transformation/validation by not specifying a Template option.
+
+Mungers are also passed the [TemplateGrp|Transform::Alert::TemplateGrp] object.  This is mostly used as a way to hook into the log, like:
+
+   $tmpl_grp->log->debug("Munger didn't like Message Body");
 
 = CAVEATS
 

@@ -5,11 +5,12 @@ package Transform::Alert::TemplateGrp;
 
 use sanity;
 use Moo;
-use MooX::Types::MooseLike::Base qw(Bool Str ArrayRef ScalarRef HashRef InstanceOf ConsumerOf);
+use MooX::Types::MooseLike::Base qw(Bool Str ArrayRef RegexpRef HashRef InstanceOf ConsumerOf Maybe);
 
 use Template 2.24;
 use Data::Dump 'pp';
 use File::Slurp 'read_file';
+use String::Escape qw(elide printable);
 use Module::Load;  # yes, using both Class::Load and Module::Load, as M:L will load files
 use Module::Metadata;
 
@@ -21,14 +22,9 @@ has in_group => (
    weak_ref => 1,
    handles  => [ 'log' ],
 );
-has preparsed => (
-   is      => 'ro',
-   isa     => Bool,
-   default => sub { 0 },
-);
-has text => (
+has regexp => (
    is       => 'ro',
-   isa      => ScalarRef[Str],
+   isa      => Maybe[RegexpRef],
    required => 1,
 );
 has munger => (
@@ -58,15 +54,17 @@ around BUILDARGS => sub {
    } @$outputs };
    
    # read template file
-   if    ($hash->{templatefile}) { $hash->{text} = read_file( delete $hash->{templatefile} ); }
-   elsif ($hash->{template})     { $hash->{text} = delete $hash->{template}; }
-   elsif ($hash->{preparsed})    { $hash->{text} = ''; }
+   if    ($hash->{templatefile}) { $hash->{regexp} = read_file( delete $hash->{templatefile} ); }
+   elsif ($hash->{template})     { $hash->{regexp} = delete $hash->{template}; }
+   else                          { $hash->{regexp} = undef; }
    
    # work with inline templates (and file above)
-   if (exists $hash->{text} && not ref $hash->{text}) {
-      my $tmpl_text = $hash->{text};
+   if ($hash->{regexp} && not ref $hash->{regexp}) {
+      my $tmpl_text = $hash->{regexp};
       $tmpl_text =~ s/^\s+|\s+$//g;  # remove leading/trailing spaces
-      $hash->{text} = \$tmpl_text;
+      $tmpl_text =~ s/\r//g;         # make sure it works for all line-endings
+      $tmpl_text = '^'.$tmpl_text.'$';
+      $hash->{regexp} = qr/$tmpl_text/;
    }
    
    # munger class
@@ -102,7 +100,7 @@ sub send_all {
    if ($self->munger) {
       my ($class, $method) = @{ $self->munger };
       no strict 'refs';
-      $vars = $class->$method($vars);
+      $vars = $class->$method($vars, $self);
 
       unless ($vars) {
          $log->debug('Munger cancelled output');
@@ -132,7 +130,8 @@ sub send_all {
          $out->open;
       }
       $log->info('Sending alert for "'.$out_key.'"');
-      ### TODO: Add message text ###
+      $log->info('   Output message: '.printable(elide($out_str, 200)) );
+
       unless ($out->send(\$out_str)) {
          $log->warn('Output error... bailing out of this process cycle!');
          $self->close_all;
@@ -160,10 +159,9 @@ __END__
    # In your configuration
    <Input ...>
       <Template>  # one or more
-         # only use one of these options
-         TemplateFile  [file]    
-         Template      "[String]"
-         Preparsed     1
+         # Template/File can be optional
+         TemplateFile  [file]      # not used with Template
+         Template      "[String]"  # not used with TemplateFile
          
          Munger        [file] [class]->[method]  # optional
          OutputName    test_out    # one or more

@@ -8,7 +8,7 @@ use Moo;
 use MooX::Types::MooseLike::Base qw(Str ArrayRef InstanceOf);
 
 use Mail::IMAPClient;
-use Email::Simple;
+use Email::MIME;
 
 with 'Transform::Alert::Input';
 
@@ -43,7 +43,7 @@ around BUILDARGS => sub {
    my $hash = shift;
    $hash = { $hash, @_ } unless ref $hash;
 
-   $hash->{parsed_folder} = delete $hash->{connopts}{newfolder} if exists $hash->{connopts}{parsedfolder};
+   $hash->{parsed_folder} = delete $hash->{connopts}{parsedfolder} if exists $hash->{connopts}{parsedfolder};
    
    $orig->($self, $hash);
 };
@@ -87,15 +87,18 @@ sub get {
    my $imap = $self->_conn;
    
    my $msg = $imap->message_string($uid) || do { $self->log->error('Error grabbing IMAP message '.$uid.': '.$imap->LastError); return; };
-   my $pmsg = Email::Simple->new($msg);
+   $msg =~ s/\r//g;
+   my $pmsg = Email::MIME->new($msg);
+   my $body = $pmsg->body_str;
+   $body =~ s/\r//g;
    my $hash = {
       $pmsg->header_obj->header_pairs,
-      BODY => $pmsg->body,
+      BODY => $body,
    };
    
    # Move message
    if ($self->has_parsed_folder) {
-      $self->move( $self->parsed_folder, $uid ) || do { $self->log->error('Error moving IMAP message '.$uid.': '.$imap->LastError); return; };
+      $imap->move( $self->parsed_folder, $uid ) || do { $self->log->error('Error moving IMAP message '.$uid.': '.$imap->LastError); return; };
    }
    # (if not, message_string will auto-set the Seen flag.)
    
@@ -161,7 +164,7 @@ figure out which messages have been parsed or not parsed.
 
 == Text
 
-Full text of the message, including headers.
+Full text of the message, including headers.  All CRs are stripped.
 
 == Preparsed Hash
 
@@ -169,7 +172,9 @@ Full text of the message, including headers.
       # Header pairs, as per Email::Simple::Header
       Email::Simple->new($msg)->header_obj->header_pairs,
       
-      BODY => $str,
+      # decoded via Email::MIME->new($msg)->body_str
+      # (all \r are stripped)
+      BODY => $str,  
    }
 
 = CAVEATS

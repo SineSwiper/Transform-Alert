@@ -99,20 +99,20 @@ sub process {
          $self->close_all;
          return;
       }
-      $log->debug('   Found message: '.printable(elide($$msg, 100)) );
+      $log->info('   Found message: '.printable(elide($$msg, 200)) );
       
       # start the matching process
       foreach my $tmpl (@{ $self->templates }) {
-         if ($tmpl->preparsed) {
-            $tmpl->send_all($hash) if $hash;
+         # input RE templates
+         my $vars = {};
+         if ($tmpl->regexp) {
+            next unless ($$msg =~ $tmpl->regexp);  # found one
+            $vars = { %+ };  # untie
          }
-         else {
-            my $in_tmpl = '^'.${ $tmpl->text }.'$';
-            if ($$msg =~ $in_tmpl) {  # found one
-               my %vars = %+;  # untie
-               $tmpl->send_all(\%vars);
-            }
-         }
+         $tmpl->send_all({
+            t => $vars,
+            p => $hash,
+         });
       }
    }
    $self->close_all;

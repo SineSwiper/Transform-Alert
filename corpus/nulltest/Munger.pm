@@ -3,9 +3,10 @@ package TestMunger;
 sub munge {
    my ($class, $vars) = @_;
    
-   $vars->{thingy} = delete $vars->{item};
+   my $newvars = {};
+   $newvars->{thingy} = $vars->{t}{item} || $vars->{p}{item};
    
-   return int rand(2) ? $vars : undef;
+   return int rand(2) ? $newvars : undef;
 }
 
 1;
