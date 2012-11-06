@@ -1,13 +1,13 @@
 package Transform::Alert::Output::Email;
 
-our $VERSION = '0.90_002'; # VERSION
+our $VERSION = '0.93'; # VERSION
 # ABSTRACT: Transform alerts to emails
 
 use sanity;
 use Moo;
 use MooX::Types::MooseLike::Base qw(Str ConsumerOf);
 
-use Email::Sender::Simple;
+use Email::Sender::Simple 'sendmail';
 use Email::Abstract;
 use Class::Load 'load_class';
 
@@ -53,7 +53,7 @@ sub send {
    my ($self, $msg) = @_;
    my $email = Email::Abstract->new($msg);  # string ref
    
-   unless (eval { Email::Sender::Simple::sendmail($email, { transport => $self->_transport }) }) {
+   unless (eval { sendmail($email, { transport => $self->_transport }) }) {
       $self->log->error('Error sending Email message: '.$@);
       return;
    }
@@ -64,7 +64,7 @@ sub close { 1; }
 
 42;
 
-
+__END__
 
 =pod
 
@@ -126,7 +126,3 @@ This is free software, licensed under:
   The Artistic License 2.0 (GPL Compatible)
 
 =cut
-
-
-__END__
-

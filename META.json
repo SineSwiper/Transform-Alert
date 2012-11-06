@@ -4,7 +4,7 @@
       "Brendan Byrd <BBYRD@CPAN.org>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Dist::Zilla version 4.300027, CPAN::Meta::Converter version 2.120921",
+   "generated_by" : "Dist::Zilla version 4.300025, CPAN::Meta::Converter version 2.120921",
    "license" : [
       "artistic_2"
    ],
@@ -24,44 +24,43 @@
    "prereqs" : {
       "develop" : {
          "requires" : {
-            "Test::Pod" : "1.41",
             "version" : "0.9901"
          }
       },
       "runtime" : {
          "requires" : {
             "App::Daemon" : "0.01",
-            "Class::Load" : "0.01",
+            "Class::Load" : "0.17",
             "Config::General" : "2.38",
             "Data::Dump" : "1.10",
             "Email::Abstract" : "3.000",
+            "Email::MIME" : "1.862",
             "Email::Sender::Simple" : "0.000",
-            "Email::Simple" : "2.004",
             "File::Slurp" : "9999.14",
             "List::AllUtils" : "0.01",
             "Log::Log4perl" : "1.15",
             "Mail::IMAPClient" : "3.03",
             "Module::Metadata" : "1.000000",
-            "Moo" : "0.009001",
+            "Moo" : "1.000000",
             "MooX::Types::MooseLike" : "0.15",
             "Net::SNMP" : "v6.0.0",
             "Net::SNMPTrapd" : "0.01",
             "Net::Syslog" : "0.04",
-            "Net::Syslogd" : "0.01",
+            "Net::Syslogd" : "0.04",
             "Path::Class" : "0.17",
             "String::Escape" : "2010.002",
-            "Template" : "2.20",
+            "Template" : "2.24",
             "namespace::clean" : "0.06",
             "perl" : "v5.10.1",
-            "sanity" : "0.91"
+            "sanity" : "0.94"
          }
       },
       "test" : {
          "requires" : {
             "Devel::SimpleTrace" : "0.07",
+            "JSONY" : "v0.0.1",
             "Net::Syslog" : "0.04",
             "Test::CheckDeps" : "0.002",
-            "Test::LeakTrace" : "0.01",
             "Test::Most" : "0.01",
             "Test::UseAllModules" : "0.10"
          }
@@ -70,74 +69,74 @@
    "provides" : {
       "Transform::Alert" : {
          "file" : "lib/Transform/Alert.pm",
-         "version" : "0.90_002"
+         "version" : "0.93"
       },
       "Transform::Alert::Input" : {
          "file" : "lib/Transform/Alert/Input.pm",
-         "version" : "0.90_002"
+         "version" : "0.93"
       },
       "Transform::Alert::Input::Dummy" : {
          "file" : "lib/Transform/Alert/Input/Dummy.pm",
-         "version" : "0.90_002"
+         "version" : "0.93"
       },
       "Transform::Alert::Input::IMAP" : {
          "file" : "lib/Transform/Alert/Input/IMAP.pm",
-         "version" : "0.90_002"
+         "version" : "0.93"
       },
       "Transform::Alert::Input::POP3" : {
          "file" : "lib/Transform/Alert/Input/POP3.pm",
-         "version" : "0.90_002"
+         "version" : "0.93"
       },
       "Transform::Alert::Input::SNMPTrapd" : {
          "file" : "lib/Transform/Alert/Input/SNMPTrapd.pm",
-         "version" : "0.90_002"
+         "version" : "0.93"
       },
       "Transform::Alert::Input::Syslogd" : {
          "file" : "lib/Transform/Alert/Input/Syslogd.pm",
-         "version" : "0.90_002"
+         "version" : "0.93"
       },
       "Transform::Alert::InputGrp" : {
          "file" : "lib/Transform/Alert/InputGrp.pm",
-         "version" : "0.90_002"
+         "version" : "0.93"
       },
       "Transform::Alert::Output" : {
          "file" : "lib/Transform/Alert/Output.pm",
-         "version" : "0.90_002"
+         "version" : "0.93"
       },
       "Transform::Alert::Output::Email" : {
          "file" : "lib/Transform/Alert/Output/Email.pm",
-         "version" : "0.90_002"
+         "version" : "0.93"
       },
       "Transform::Alert::Output::Null" : {
          "file" : "lib/Transform/Alert/Output/Null.pm",
-         "version" : "0.90_002"
+         "version" : "0.93"
       },
       "Transform::Alert::Output::SNMP" : {
          "file" : "lib/Transform/Alert/Output/SNMP.pm",
-         "version" : "0.90_002"
+         "version" : "0.93"
       },
       "Transform::Alert::Output::SNMP::Inform" : {
          "file" : "lib/Transform/Alert/Output/SNMP/Inform.pm",
-         "version" : "0.90_002"
+         "version" : "0.93"
       },
       "Transform::Alert::Output::SNMP::Set" : {
          "file" : "lib/Transform/Alert/Output/SNMP/Set.pm",
-         "version" : "0.90_002"
+         "version" : "0.93"
       },
       "Transform::Alert::Output::SNMP::Trap" : {
          "file" : "lib/Transform/Alert/Output/SNMP/Trap.pm",
-         "version" : "0.90_002"
+         "version" : "0.93"
       },
       "Transform::Alert::Output::Syslog" : {
          "file" : "lib/Transform/Alert/Output/Syslog.pm",
-         "version" : "0.90_002"
+         "version" : "0.93"
       },
       "Transform::Alert::TemplateGrp" : {
          "file" : "lib/Transform/Alert/TemplateGrp.pm",
-         "version" : "0.90_002"
+         "version" : "0.93"
       }
    },
-   "release_status" : "testing",
+   "release_status" : "stable",
    "resources" : {
       "bugtracker" : {
          "web" : "https://github.com/SineSwiper/Transform-Alert/issues"
@@ -150,10 +149,10 @@
       },
       "x_irc" : "irc://irc.perl.org/#web-simple"
    },
-   "version" : "0.90_002",
+   "version" : "0.93",
    "x_Dist_Zilla" : {
       "perl" : {
-         "version" : "5.016000"
+         "version" : "5.010001"
       },
       "plugins" : [
          {
@@ -164,7 +163,12 @@
          {
             "class" : "Dist::Zilla::Plugin::MakeMaker",
             "name" : "@Filter/MakeMaker",
-            "version" : "4.300027"
+            "version" : "4.300025"
+         },
+         {
+            "class" : "Dist::Zilla::Plugin::Git::NextVersion",
+            "name" : "@Filter/Git::NextVersion",
+            "version" : "2.001"
          },
          {
             "class" : "Dist::Zilla::Plugin::Git::GatherDir",
@@ -184,7 +188,7 @@
          {
             "class" : "Dist::Zilla::Plugin::PruneCruft",
             "name" : "@Filter/PruneCruft",
-            "version" : "4.300027"
+            "version" : "4.300025"
          },
          {
             "class" : "Dist::Zilla::Plugin::GitFmtChanges",
@@ -194,17 +198,17 @@
          {
             "class" : "Dist::Zilla::Plugin::ManifestSkip",
             "name" : "@Filter/ManifestSkip",
-            "version" : "4.300027"
+            "version" : "4.300025"
          },
          {
             "class" : "Dist::Zilla::Plugin::Manifest",
             "name" : "@Filter/Manifest",
-            "version" : "4.300027"
+            "version" : "4.300025"
          },
          {
             "class" : "Dist::Zilla::Plugin::License",
             "name" : "@Filter/License",
-            "version" : "4.300027"
+            "version" : "4.300025"
          },
          {
             "class" : "Dist::Zilla::Plugin::ReadmeAnyFromPod",
@@ -224,7 +228,7 @@
          {
             "class" : "Dist::Zilla::Plugin::ExecDir",
             "name" : "@Filter/ExecDir",
-            "version" : "4.300027"
+            "version" : "4.300025"
          },
          {
             "class" : "Dist::Zilla::Plugin::Test::Compile",
@@ -234,7 +238,7 @@
          {
             "class" : "Dist::Zilla::Plugin::PodSyntaxTests",
             "name" : "@Filter/PodSyntaxTests",
-            "version" : "4.300027"
+            "version" : "4.300025"
          },
          {
             "class" : "Dist::Zilla::Plugin::RunExtraTests",
@@ -299,7 +303,7 @@
          {
             "class" : "Dist::Zilla::Plugin::AutoPrereqs",
             "name" : "@Filter/@Prereqs/AutoPrereqs",
-            "version" : "4.300027"
+            "version" : "4.300025"
          },
          {
             "class" : "Dist::Zilla::Plugin::MinimumPerl",
@@ -324,22 +328,17 @@
          {
             "class" : "Dist::Zilla::Plugin::MetaConfig",
             "name" : "@Filter/MetaConfig",
-            "version" : "4.300027"
+            "version" : "4.300025"
          },
          {
             "class" : "Dist::Zilla::Plugin::MetaJSON",
             "name" : "@Filter/MetaJSON",
-            "version" : "4.300027"
-         },
-         {
-            "class" : "Dist::Zilla::Plugin::MetaYAML",
-            "name" : "@Filter/MetaYAML",
-            "version" : "4.300027"
+            "version" : "4.300025"
          },
          {
             "class" : "Dist::Zilla::Plugin::MetaNoIndex",
             "name" : "@Filter/MetaNoIndex",
-            "version" : "4.300027"
+            "version" : "4.300025"
          },
          {
             "class" : "Dist::Zilla::Plugin::MetaProvides::Package",
@@ -399,17 +398,17 @@
          {
             "class" : "Dist::Zilla::Plugin::TestRelease",
             "name" : "@Filter/TestRelease",
-            "version" : "4.300027"
+            "version" : "4.300025"
          },
          {
             "class" : "Dist::Zilla::Plugin::ConfirmRelease",
             "name" : "@Filter/ConfirmRelease",
-            "version" : "4.300027"
+            "version" : "4.300025"
          },
          {
             "class" : "Dist::Zilla::Plugin::UploadToCPAN",
             "name" : "@Filter/UploadToCPAN",
-            "version" : "4.300027"
+            "version" : "4.300025"
          },
          {
             "class" : "Dist::Zilla::Plugin::InstallRelease",
@@ -424,32 +423,32 @@
          {
             "class" : "Dist::Zilla::Plugin::FinderCode",
             "name" : ":InstallModules",
-            "version" : "4.300027"
+            "version" : "4.300025"
          },
          {
             "class" : "Dist::Zilla::Plugin::FinderCode",
             "name" : ":IncModules",
-            "version" : "4.300027"
+            "version" : "4.300025"
          },
          {
             "class" : "Dist::Zilla::Plugin::FinderCode",
             "name" : ":TestFiles",
-            "version" : "4.300027"
+            "version" : "4.300025"
          },
          {
             "class" : "Dist::Zilla::Plugin::FinderCode",
             "name" : ":ExecFiles",
-            "version" : "4.300027"
+            "version" : "4.300025"
          },
          {
             "class" : "Dist::Zilla::Plugin::FinderCode",
             "name" : ":ShareFiles",
-            "version" : "4.300027"
+            "version" : "4.300025"
          },
          {
             "class" : "Dist::Zilla::Plugin::FinderCode",
             "name" : ":MainModule",
-            "version" : "4.300027"
+            "version" : "4.300025"
          }
       ],
       "zilla" : {
@@ -457,7 +456,7 @@
          "config" : {
             "is_trial" : "0"
          },
-         "version" : "4.300027"
+         "version" : "4.300025"
       }
    }
 }

@@ -1,6 +1,5 @@
 use sanity;
-use Test::Most tests => 17;
-use Test::LeakTrace;
+use Test::Most tests => 18;
 
 use Path::Class;
 use lib dir(qw{ t lib })->stringify;
@@ -34,12 +33,13 @@ foreach my $str (
 foreach my $str (
    '{ item => "Ich bin ein Berliner!" }',
    '{ thingy => "Ich bin ein Berliner!" }',
+   'Error ',
+   'failed: ',
 ) {
    ok($log !~ qr/\Q$str\E/, "Didn't find - $str");
 }
 
-no_leaks_ok {
-   $ta->heartbeat for (1 .. 30);
-} 'no memory leaks';
+my $is_pass = Test::More->builder->is_passing;
+explain $log unless ($is_pass);
 
-$log_file->remove;
+$log_file->remove if ($is_pass);

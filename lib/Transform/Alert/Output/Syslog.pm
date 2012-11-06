@@ -1,6 +1,6 @@
 package Transform::Alert::Output::Syslog;
 
-our $VERSION = '0.90_002'; # VERSION
+our $VERSION = '0.93'; # VERSION
 # ABSTRACT: Transform alerts to Syslog alerts
 
 use sanity;
@@ -50,7 +50,7 @@ sub close { 1; }
 
 42;
 
-
+__END__
 
 =pod
 
@@ -109,7 +109,3 @@ This is free software, licensed under:
   The Artistic License 2.0 (GPL Compatible)
 
 =cut
-
-
-__END__
-

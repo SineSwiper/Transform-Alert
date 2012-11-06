@@ -1,13 +1,13 @@
 package Transform::Alert::Input::Syslogd;
 
-our $VERSION = '0.90_002'; # VERSION
+our $VERSION = '0.93'; # VERSION
 # ABSTRACT: Transform alerts from an internal Syslog daemon
 
 use sanity;
 use Moo;
 use MooX::Types::MooseLike::Base qw(InstanceOf);
 
-use Net::Syslogd;
+use Net::Syslogd 0.04;
 
 with 'Transform::Alert::Input';
 
@@ -69,7 +69,7 @@ sub close { 1 }
 
 42;
 
-
+__END__
 
 =pod
 
@@ -145,7 +145,3 @@ This is free software, licensed under:
   The Artistic License 2.0 (GPL Compatible)
 
 =cut
-
-
-__END__
-

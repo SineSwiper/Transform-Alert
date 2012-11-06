@@ -1,6 +1,6 @@
 package Transform::Alert::Input::IMAP;
 
-our $VERSION = '0.90_002'; # VERSION
+our $VERSION = '0.93'; # VERSION
 # ABSTRACT: Transform alerts from IMAP messages
 
 use sanity;
@@ -8,7 +8,8 @@ use Moo;
 use MooX::Types::MooseLike::Base qw(Str ArrayRef InstanceOf);
 
 use Mail::IMAPClient;
-use Email::Simple;
+use Email::MIME;
+use List::AllUtils 'first';
 
 with 'Transform::Alert::Input';
 
@@ -24,7 +25,11 @@ has _conn => (
    isa       => InstanceOf['Mail::IMAPClient'],
    lazy      => 1,
    default   => sub {
-      Mail::IMAPClient->new( %{shift->connopts} )
+      my $self = shift;
+      Mail::IMAPClient->new( %{$self->connopts} ) || do {
+         $self->log->error('IMAP New/Connect/Login failed: '.$@);
+         return;
+      };
    },
 );
 has _list => (
@@ -39,7 +44,7 @@ around BUILDARGS => sub {
    my $hash = shift;
    $hash = { $hash, @_ } unless ref $hash;
 
-   $hash->{parsed_folder} = delete $hash->{connopts}{newfolder} if exists $hash->{connopts}{parsedfolder};
+   $hash->{parsed_folder} = delete $hash->{connopts}{parsedfolder} if exists $hash->{connopts}{parsedfolder};
    
    $orig->($self, $hash);
 };
@@ -63,11 +68,11 @@ sub open {
       }
    }
 
-   my @msgs = ($self->has_parsed_folder ? $imap->messages : $imap->unseen) || do {
+   my $msgs = ($self->has_parsed_folder ? $imap->messages : $imap->unseen) || do {
       $self->log->error('IMAP Messages failed: '.$imap->LastError);
       return;
    };
-   $self->_list(\@msgs);
+   $self->_list($msgs);
    
    return 1;
 }
@@ -83,15 +88,21 @@ sub get {
    my $imap = $self->_conn;
    
    my $msg = $imap->message_string($uid) || do { $self->log->error('Error grabbing IMAP message '.$uid.': '.$imap->LastError); return; };
-   my $pmsg = Email::Simple->new($msg);
+   $msg =~ s/\r//g;
+   my $pmsg = Email::MIME->new($msg);
+   my $body = eval { $pmsg->body_str } || do {
+      my $part = first { $_ && $_->content_type =~ /^text\/plain/ } $pmsg->parts;
+      $part ? $part->body_str : $pmsg->body_raw;
+   };
+   $body =~ s/\r//g;
    my $hash = {
       $pmsg->header_obj->header_pairs,
-      BODY => $pmsg->body,
+      BODY => $body,
    };
    
    # Move message
    if ($self->has_parsed_folder) {
-      $self->move( $self->parsed_folder, $uid ) || do { $self->log->error('Error moving IMAP message '.$uid.': '.$imap->LastError); return; };
+      $imap->move( $self->parsed_folder, $uid ) || do { $self->log->error('Error moving IMAP message '.$uid.': '.$imap->LastError); return; };
    }
    # (if not, message_string will auto-set the Seen flag.)
    
@@ -118,7 +129,7 @@ sub close {
 
 42;
 
-
+__END__
 
 =pod
 
@@ -163,7 +174,7 @@ figure out which messages have been parsed or not parsed.
 
 =head2 Text
 
-Full text of the message, including headers.
+Full text of the raw message, including headers.  All CRs are stripped.
 
 =head2 Preparsed Hash
 
@@ -171,6 +182,9 @@ Full text of the message, including headers.
        # Header pairs, as per Email::Simple::Header
        Email::Simple->new($msg)->header_obj->header_pairs,
  
+       # decoded via Email::MIME->new($msg)
+       # $pmsg->body_str, or body_str of the first text/plain part (if it croaks), or $pmsg->body_raw
+       # (all \r are stripped)
        BODY => $str,
     }
 
@@ -178,6 +192,9 @@ Full text of the message, including headers.
 
 You are responsible for setting up any archivingE<sol>deletion protocols for the mailbox, as this module will save everything (and potentially
 fill up the box).
+
+The raw message isn't kept for the Munger.  If you really need it, you can implement an input RE template of C<<< (?<RAWMSG>[\s\S]+) >>>, and parse
+out the email message yourself.
 
 This class is persistent, keeping the L<Mail::IMAPClient> object until shutdown.  However, it will still disconnect on close.
 
@@ -202,7 +219,3 @@ This is free software, licensed under:
   The Artistic License 2.0 (GPL Compatible)
 
 =cut
-
-
-__END__
-

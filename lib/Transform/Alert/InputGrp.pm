@@ -1,6 +1,6 @@
 package Transform::Alert::InputGrp;
 
-our $VERSION = '0.90_002'; # VERSION
+our $VERSION = '0.93'; # VERSION
 # ABSTRACT: Base class for Transform::Alert input groups
 
 use sanity;
@@ -99,20 +99,20 @@ sub process {
          $self->close_all;
          return;
       }
-      $log->debug('   Found message: '.printable(elide($$msg, 100)) );
+      $log->info('   Found message: '.printable(elide($$msg, 200)) );
       
       # start the matching process
       foreach my $tmpl (@{ $self->templates }) {
-         if ($tmpl->preparsed) {
-            $tmpl->send_all($hash) if $hash;
+         # input RE templates
+         my $vars = {};
+         if ($tmpl->regexp) {
+            next unless ($$msg =~ $tmpl->regexp);  # found one
+            $vars = { %+ };  # untie
          }
-         else {
-            my $in_tmpl = '^'.${ $tmpl->text }.'$';
-            if ($$msg =~ $in_tmpl) {  # found one
-               my %vars = %+;  # untie
-               $tmpl->send_all(\%vars);
-            }
-         }
+         $tmpl->send_all({
+            t => $vars,
+            p => $hash,
+         });
       }
    }
    $self->close_all;
@@ -136,7 +136,7 @@ sub close_all {
 
 42;
 
-
+__END__
 
 =pod
 
@@ -198,7 +198,3 @@ This is free software, licensed under:
   The Artistic License 2.0 (GPL Compatible)
 
 =cut
-
-
-__END__
-

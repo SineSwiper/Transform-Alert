@@ -1,6 +1,45 @@
 Revision History for Transform-Alert
 ====================================
 
+v0.93 2012-11-06
+----------------
+
+commit 499ea6c372babb043931eba34d9aabef2a45d5c1
+Author: Brendan Byrd <Perl@ResonatorSoft.org>
+Date:   Tue Nov 6 14:09:45 2012 -0500
+
+    Fix IMAP/POP3 inputs to work with multipart/* MIME messages
+       (and not insta-die)
+
+v0.92 2012-11-02
+----------------
+
+commit 2b2f84f7f6c69db93fd73591bd0338a57367050c
+Author: Byrd <loubbyrd@noclab01.et.ky.insightcom.com>
+Date:   Fri Nov 2 17:24:59 2012 -0400
+
+    Release v0.92
+
+commit 590d78d857a1946a2302a733650cea13dca26638
+Author: Brendan Byrd <Perl@ResonatorSoft.org>
+Date:   Fri Nov 2 16:38:42 2012 -0400
+
+    Fix IMAP ParsedFolder option
+    Use Email::MIME for email message parsing
+    Strip \r from templates and messages
+    Replace Preparsed option with t/p hash passing
+    Add $tmpl_grp variable passing to Munger
+    Change some DEBUG->INFO lines for logging
+
+v0.91 2012-10-24
+----------------
+
+commit 993c3d0750ec0945ac2bfe8d253492995561c559
+Author: Byrd <loubbyrd@noclab01.et.ky.insightcom.com>
+Date:   Wed Oct 24 14:08:02 2012 -0400
+
+    Release v0.91
+
 ===================================
 End of changes in the last 365 days
 ===================================

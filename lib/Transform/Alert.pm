@@ -1,10 +1,10 @@
 package Transform::Alert;
 
-our $VERSION = '0.90_002'; # VERSION
+our $VERSION = '0.93'; # VERSION
 # ABSTRACT: Transform alerts from one type to another type
 
-use sanity;
-use Moo;
+use sanity 0.94;
+use Moo 1.000000;
 use MooX::Types::MooseLike 0.15;  # ::Base got no $VERSION
 use MooX::Types::MooseLike::Base qw(Str HashRef ScalarRef ArrayRef InstanceOf ConsumerOf);
 
@@ -12,11 +12,11 @@ use MooX::Types::MooseLike::Base qw(Str HashRef ScalarRef ArrayRef InstanceOf Co
 
 use Transform::Alert::InputGrp;
 
-use Time::HiRes 'time';
+use Time::HiRes    'time';
 use List::AllUtils 'min';
-use File::Slurp 'read_file';
-use Storable 'dclone';
-use Class::Load 'load_class';
+use File::Slurp    'read_file';
+use Storable       'dclone';
+use Class::Load    0.17 ('load_class');  # 0.17 = wheezy's version
 
 use namespace::clean;
 
@@ -127,9 +127,11 @@ sub close_all {
 
 42;
 
-
+__END__
 
 =pod
+
+=encoding utf-8
 
 =head1 NAME
 
@@ -248,7 +250,7 @@ can use a relative path, in which case will start at the config path.
 
     <Input [name]>  # one or more
        Type      [type]
-       Interval  [second]  # optional
+       Interval  [seconds]  # optional; default is 60s
  
        # <ConnOpts> section; module-specific
        # <Template> sections
@@ -272,10 +274,9 @@ The engine may someday be changed to have multi-processed inputs, but the need i
 
     <Input ...>
        <Template>  # one or more
-          # only use one of these options
-          TemplateFile  [file]    
-          Template      "[String]"
-          Preparsed     1
+          # Template/File can be optional
+          TemplateFile  [file]      # not used with Template
+          Template      "[String]"  # not used with TemplateFile
  
           Munger        [file] [class]->[method]  # optional
           OutputName    test_out    # one or more
@@ -285,12 +286,11 @@ The engine may someday be changed to have multi-processed inputs, but the need i
 All C<<< Input >>> sections must have one or more C<<< Template >>> sections.  (In this case, this is an input template.)  As messages are being processed,
 each message is tested on all of the templates.
 
-All templates must either have a C<<< TemplateFile >>>, C<<< Template >>>, or C<<< Preparsed >>> option.  (These are mutually excusive.)  In most cases, you should
-stick with file-based templates, as inline templates are whitespace sensitive, and should only be used for single line REs.
+All templates must either have a C<<< TemplateFile >>> or C<<< Template >>> option.  In most cases, you should stick with file-based templates, as inline
+templates are whitespace sensitive, and should only be used for single line REs.
 
-If you set the C<<< Preparsed >>> option, a template file is not used.  Instead, a hash is passed directly from the input (instead of text).  Without
-a Munger to validate the hash, all preparsed templates will be accepted (and sent to the output), as long as it passes data.  For a structure
-of the hash passed, look at the documentation for that input module.
+If you don't set a Template option, a template file is not used.  Without a Munger to validate the hash, these templates will be accepted (and
+sent to the output), as long as it passes data.
 
 The optional C<<< Munger >>> option can be used to specify a module used in changing the variables between the input and output.  (More details about
 Mungers further down.)  The option itself can be expressed in a number of ways:
@@ -305,6 +305,8 @@ Mungers further down.)  The option itself can be expressed in a number of ways:
 If a class isn't specified, the first package name found in the file is used.  If the method is missing, the default is C<<< munge >>>.  If there
 isn't a file specified, it will try to load the class like C<<< use/require >>>.  (Technically, you could take advantage of the C<<< . >>> path in C<<< %INC >>>,
 but it's better to just provide the filename.)
+
+If both a C<<< Template >>>E<sol>{TemplateFile} & C<<< Munger >>> option are passed, it will test both forms as an AND-based match, testing the text form first.
 
 The C<<< OutputName >>> options provide the name of the Output sources to use after a template match is found.  (These sources are defined below.)
 More that one option means that the alert will be sent to multiple sources.
@@ -343,14 +345,14 @@ are put in the right directory.
 Input templates are basically big multi-line regular expressions.  These are NOT C<<< /x >>> whitespace-insensitive regular expressions, as those
 would make copyE<sol>pasting large bodies of text more difficult.  (There's an assumption that most input templates will have more static text than
 freeform RE parts.)  Besides, you can still use a C<<< (?x...) >>> construct.  Also, leading and trailing whitespace is removed, so stray whitespace
-should not an issue there.  RE templates are also put into a C<<< ^$re$ >>>, with beginE<sol>end symbols, which can easily be overriden with C<<< .* >>>.
+should not be an issue there.  RE templates are also put into a C<<< ^$re$ >>>, with beginE<sol>end symbols, which can easily be overriden with C<<< .* >>>.
 
 Please note that a matched template doesn't stop the matching process, so make sure the templates are unique enough if you don't want to
 match multiple templates.
 
 Here's an example using an email template:
 
-    \QTo: <alert@foobar.org>
+    [\s\S]*\QTo: <alert@foobar.org>
     From: <alert@foobar.org>
     Subject: Email Alert - \E(?<subject>[^\n]+)
     Date: (?<date>[^\n]+)
@@ -361,28 +363,42 @@ Here's an example using an email template:
     \QName    :\E (?<name>\w+)
     \QProblem :\E (?<problem>[^\n]+)
     \QTicket #:\E (?<ticket>\w+)
+    .*
 
 Of course, this is taking some assumptions about the order and format of headers, but if this is coming from an automated platform that uses
 the same mail server, there really shouldn't be much change at all.  If you need finer control of the verification process, you can make use
-of L<Mungers|/Mungers> and possibly the L<Preparsed option|/Template>.
+of L<Mungers|/Mungers>.
 
 =head2 Output Templates
 
 Output templates use L<Template::Toolkit>.  If you want a quick and dirty lesson on how they work, check out L<Template::Manual::Syntax>.  If 
-B<that> is too wordy for you, then just remember that variables are replaced with a C<<< [% var %] >>> syntax.
+B<that> is too wordy for you, then just remember that variables are replaced with a C<<< [% t.var %] >>> syntax.
 
-Here's an example that looks similar to the input one above:
+The variables passed to the Output (or Munger, if specified) will look like this:
 
-    To: [% to %]
-    From: [% from %]
-    Subject: Email Alert - [% subject %]
-    Date: [% date %]
+    {
+       t => {
+          # text form variables acquired from the input RE template
+       },
+       p => {
+          # preparsed hash variables, sent by the Input module
+       }
+    }
+
+For a structure of the C<<< p >>> hash passed, look at the documentation for that input module.
+
+Here's an example output template that looks similar to the input one above:
+
+    To: [% t.to %]
+    From: [% t.from %]
+    Subject: Email Alert - [% t.subject %]
+    Date: [% t.date %]
  
     We found a problem on this device:
  
-    Name    : [% name %]
-    Problem : [% problem %]
-    Ticket #: [% ticket %]
+    Name    : [% t.name %]
+    Problem : [% t.problem %]
+    Ticket #: [% t.ticket %]
 
 =head2 Mungers
 
@@ -396,9 +412,9 @@ from the test platform:
     package TestMunger;
  
     sub munge {
-       my ($class, $vars) = @_;
+       my ($class, $vars, $tmpl_grp) = @_;
  
-       $vars->{thingy} = delete $vars->{item};
+       $vars->{t}{thingy} = delete $vars->{t}{item};
  
        return int rand(2) ? $vars : undef;
     }
@@ -411,7 +427,11 @@ could just as easily do anything Perl can do to transform and validate the data.
 All mungers are called by their class (ie: C<<< TestMunger->munge >>>), so all of them should have a package name.  They should also return either
 C<<< undef >>> (as a rejection) or the variable list (as a hashref).
 
-A munger could also become the B<primary> piece for input transformationE<sol>validation using the L<Preparsed option|/Template>.
+A munger could also become the B<primary> piece for input transformationE<sol>validation by not specifying a Template option.
+
+Mungers are also passed the L<TemplateGrp|Transform::Alert::TemplateGrp> object.  This is mostly used as a way to hook into the log, like:
+
+    $tmpl_grp->log->debug("Munger didn't like Message Body");
 
 =head1 CAVEATS
 
@@ -493,7 +513,3 @@ This is free software, licensed under:
   The Artistic License 2.0 (GPL Compatible)
 
 =cut
-
-
-__END__
-

@@ -1,6 +1,6 @@
 package Transform::Alert::Input::POP3;
 
-our $VERSION = '0.90_002'; # VERSION
+our $VERSION = '0.93'; # VERSION
 # ABSTRACT: Transform alerts from POP3 messages
 
 use sanity;
@@ -8,7 +8,8 @@ use Moo;
 use MooX::Types::MooseLike::Base qw(Str Int ArrayRef HashRef InstanceOf);
 
 use Net::POP3;
-use Email::Simple;
+use Email::MIME;
+use List::AllUtils 'first';
 
 with 'Transform::Alert::Input';
 
@@ -44,15 +45,22 @@ around BUILDARGS => sub {
 
    $hash->{username} = delete $hash->{connopts}{username};
    $hash->{password} = delete $hash->{connopts}{password};
+
+   # Net::POP3 is a bit picky about its case-sensitivity
+   foreach my $keyword (qw{ Host ResvPort Timeout Debug }) {
+      $hash->{connopts}{$keyword} = delete $hash->{connopts}{lc $keyword} if (exists $hash->{connopts}{lc $keyword});
+   }
    
    $orig->($self, $hash);
 };
 
 sub open {
    my $self = shift;
-   my $pop  = $self->_conn(
-      Net::POP3->new( %{$self->connopts} )
-   );
+   my $pop  = Net::POP3->new( %{$self->connopts} ) || do {
+      $self->log->error('POP3 New failed: '.$@);
+      return;
+   };
+   $self->_conn($pop);
    
    unless ( $pop->login($self->username, $self->password) ) {
       $self->log->error('POP3 Login failed: '.$pop->message);
@@ -85,10 +93,16 @@ sub get {
    $pop->delete($num);
    
    my $msg = join '', @$amsg;
-   my $pmsg = Email::Simple->new($msg);
+   $msg =~ s/\r//g;
+   my $pmsg = Email::MIME->new($msg);
+   my $body = eval { $pmsg->body_str } || do {
+      my $part = first { $_ && $_->content_type =~ /^text\/plain/ } $pmsg->parts;
+      $part ? $part->body_str : $pmsg->body_raw;
+   };
+   $body =~ s/\r//g;
    my $hash = {
       $pmsg->header_obj->header_pairs,
-      BODY => $pmsg->body,
+      BODY => $body,
    };
    
    return (\$msg, $hash);
@@ -111,7 +125,7 @@ sub close {
 
 42;
 
-
+__END__
 
 =pod
 
@@ -142,19 +156,17 @@ Transform::Alert::Input::POP3 - Transform alerts from POP3 messages
 
 =head1 DESCRIPTION
 
-This input type will read a POP3 mailbox and process each message through the 
-input template engine.  If it finds a match, the results of the match are sent
-to one or more outputs, depending on the group configuration.
+This input type will read a POP3 mailbox and process each message through the input template engine.  If it finds a match, the results of the
+match are sent to one or more outputs, depending on the group configuration.
 
-See L<Net::POP3> for a list of the ConnOpts section parameters.  The C<<< Username >>>
-and C<<< Password >>> options are included in this set, but not used in the POP3
-object's construction.
+See L<Net::POP3> for a list of the ConnOpts section parameters.  The C<<< Username >>> and C<<< Password >>> options are included in this set, but not used
+in the POP3 object's construction.
 
 =head1 OUTPUTS
 
 =head2 Text
 
-Full text of the message, including headers.
+Full text of the raw message, including headers.  All CRs are stripped.
 
 =head2 Preparsed Hash
 
@@ -162,12 +174,19 @@ Full text of the message, including headers.
        # Header pairs, as per Email::Simple::Header
        Email::Simple->new($msg)->header_obj->header_pairs,
  
-       BODY => $str,
+       # decoded via Email::MIME->new($msg)
+       # $pmsg->body_str, or body_str of the first text/plain part (if it croaks), or $pmsg->body_raw
+       # (all \r are stripped)
+       BODY => $str,  
     }
 
 =head1 CAVEATS
 
-All messages are deleted from the system, whether it was matched or not.
+All messages are deleted from the system, whether it was matched or not.  If you need to save your messages, you should consider using
+L<IMAP|Transform::Alert::Input::IMAP>.
+
+The raw message isn't kept for the Munger.  If you really need it, you can implement an input RE template of C<<< (?<RAWMSG>[\s\S]+) >>>, and parse
+out the email message yourself.
 
 =head1 AVAILABILITY
 
@@ -190,7 +209,3 @@ This is free software, licensed under:
   The Artistic License 2.0 (GPL Compatible)
 
 =cut
-
-
-__END__
-
