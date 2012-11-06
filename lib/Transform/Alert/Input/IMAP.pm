@@ -9,6 +9,7 @@ use MooX::Types::MooseLike::Base qw(Str ArrayRef InstanceOf);
 
 use Mail::IMAPClient;
 use Email::MIME;
+use List::AllUtils 'first';
 
 with 'Transform::Alert::Input';
 
@@ -89,7 +90,10 @@ sub get {
    my $msg = $imap->message_string($uid) || do { $self->log->error('Error grabbing IMAP message '.$uid.': '.$imap->LastError); return; };
    $msg =~ s/\r//g;
    my $pmsg = Email::MIME->new($msg);
-   my $body = $pmsg->body_str;
+   my $body = eval { $pmsg->body_str } || do {
+      my $part = first { $_ && $_->content_type =~ /^text\/plain/ } $pmsg->parts;
+      $part ? $part->body_str : $pmsg->body_raw;
+   };
    $body =~ s/\r//g;
    my $hash = {
       $pmsg->header_obj->header_pairs,
@@ -164,7 +168,7 @@ figure out which messages have been parsed or not parsed.
 
 == Text
 
-Full text of the message, including headers.  All CRs are stripped.
+Full text of the raw message, including headers.  All CRs are stripped.
 
 == Preparsed Hash
 
@@ -172,15 +176,19 @@ Full text of the message, including headers.  All CRs are stripped.
       # Header pairs, as per Email::Simple::Header
       Email::Simple->new($msg)->header_obj->header_pairs,
       
-      # decoded via Email::MIME->new($msg)->body_str
+      # decoded via Email::MIME->new($msg)
+      # $pmsg->body_str, or body_str of the first text/plain part (if it croaks), or $pmsg->body_raw
       # (all \r are stripped)
-      BODY => $str,  
+      BODY => $str,
    }
 
 = CAVEATS
 
 You are responsible for setting up any archiving/deletion protocols for the mailbox, as this module will save everything (and potentially
 fill up the box).
+
+The raw message isn't kept for the Munger.  If you really need it, you can implement an input RE template of {(?<RAWMSG>[\s\S]+)}, and parse
+out the email message yourself.
 
 This class is persistent, keeping the [Mail::IMAPClient] object until shutdown.  However, it will still disconnect on close.
 
