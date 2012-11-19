@@ -45,6 +45,13 @@ unless ($l4p) {
    $appender->layout(
       Log::Log4perl::Layout::PatternLayout::Multiline->new("[%d{ISO8601}] [%-5p] {%-25M{2}} %m%n")
    );
+
+   # Need to make sure it's watching for log moves
+   $appender->{appender}{recreate} = 1;
+   $appender->{appender}{recreate_check_signal} = 'HUP';
+   # (force a re-open)
+   $appender->file_close;
+   $appender->file_open;
 }
 
 # config file loading
@@ -87,20 +94,20 @@ __END__
 =encoding utf-8
 
 =begin wikidoc
-      
+
 = SYNOPSIS
 
    transalert_ctl {start|stop|status}? [OPTION]...
-   
+
    Controls the Transform::Alert daemon.
-   
+
    Control commands:
       start      Start up the daemon.  Default action if not specified.
       stop       Stop the daemon.  Typically requires a -p option.
       status     Print out diagnostics on what the status of the daemon is.  Typically requires a -p option.
-              
-   Options:   
-      -c FILE    Loads FILE for configuration.  Required to start the daemon.        
+
+   Options:
+      -c FILE    Loads FILE for configuration.  Required to start the daemon.
       -X         Foreground mode.  Log messages go to the screen.
       -l FILE    Sends Log4perl messages to FILE in background mode.  Defaults to ./transalert_ctl.log.
       -p FILE    Writes PID to FILE.  Defaults to ./transalert_ctl.pid.
@@ -109,7 +116,7 @@ __END__
       -v         Debug mode.  Ignored if -l4p option is specified.
 
 = DESCRIPTION
- 
+
 Most of this stuff is pretty obvious.  [App::Daemon] also has some useful information about the CLI options.
 
 = CAVEATS

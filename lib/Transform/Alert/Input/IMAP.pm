@@ -31,6 +31,8 @@ has _conn => (
          return;
       };
    },
+   predicate => 1,
+   clearer   => 1,
 );
 has _list => (
    is        => 'rw',
@@ -45,14 +47,14 @@ around BUILDARGS => sub {
    $hash = { $hash, @_ } unless ref $hash;
 
    $hash->{parsed_folder} = delete $hash->{connopts}{parsedfolder} if exists $hash->{connopts}{parsedfolder};
-   
+
    $orig->($self, $hash);
 };
 
 sub open {
    my $self = shift;
-   my $imap = $self->_conn || do { $self->log->error('IMAP New/Connect/Login failed: '.$@); return; };
-   
+   my $imap = $self->_conn || return;
+
    # figure out which state it's in
    unless ($imap->IsSelected) {
       if    (not $imap->IsConnected) {
@@ -61,7 +63,7 @@ sub open {
       elsif (not $imap->IsAuthenticated) {
          $imap->login   || do { $self->log->error('IMAP Login failed: '        .$imap->LastError); return; };
       }
-      
+
       # might not have a folder set
       unless ($imap->IsSelected) {
          $imap->select('Inbox') || do { $self->log->error('IMAP Select failed: '.$imap->LastError); return; };
@@ -73,20 +75,20 @@ sub open {
       return;
    };
    $self->_list($msgs);
-   
+
    return 1;
 }
 
-sub opened { 
+sub opened {
    my $self = shift;
-   $self->_conn and $self->_conn->IsSelected;
+   $self->_has_conn and $self->_conn->IsSelected;
 }
 
 sub get {
    my $self = shift;
    my $uid  = shift @{$self->_list};
    my $imap = $self->_conn;
-   
+
    my $msg = $imap->message_string($uid) || do { $self->log->error('Error grabbing IMAP message '.$uid.': '.$imap->LastError); return; };
    $msg =~ s/\r//g;
    my $pmsg = Email::MIME->new($msg);
@@ -99,13 +101,13 @@ sub get {
       $pmsg->header_obj->header_pairs,
       BODY => $body,
    };
-   
+
    # Move message
    if ($self->has_parsed_folder) {
       $imap->move( $self->parsed_folder, $uid ) || do { $self->log->error('Error moving IMAP message '.$uid.': '.$imap->LastError); return; };
    }
    # (if not, message_string will auto-set the Seen flag.)
-   
+
    return (\$msg, $hash);
 }
 
@@ -119,10 +121,18 @@ sub close {
    my $imap = $self->_conn;
 
    $self->_clear_list;
-   if ($self->opened) {
-      $imap->close  || $self->log->warn('Error closing IMAP: '.$imap->LastError);
+   my $is_valid = $self->opened;
+
+   # valid connection
+   if ($is_valid) {
+      $imap->close  || $self->log->warn('Error closing IMAP: '       .$imap->LastError);
+   }
+   # open or valid connection
+   if ($imap->IsConnected) {
       $imap->logout || $self->log->warn('Error logging out of IMAP: '.$imap->LastError);
    }
+   # invalid connection
+   $self->_clear_conn unless ($is_valid);
 
    return 1;
 }
@@ -139,10 +149,10 @@ __END__
    <Input test>
       Type      IMAP
       Interval  60  # seconds (default)
-      
+
       <ConnOpts>
          ParsedFolder  Finished
-         
+
          # See Mail::IMAPClient Parameters
          Server   mail.foobar.org
          User     bob
@@ -153,9 +163,9 @@ __END__
       </ConnOpts>
       # <Template> tags...
    </Input>
- 
+
 = DESCRIPTION
- 
+
 This input type will read a IMAP mailbox and process each message through the input template engine.  If it finds a match, the results of the
 match are sent to one or more outputs, depending on the group configuration.
 
@@ -175,7 +185,7 @@ Full text of the raw message, including headers.  All CRs are stripped.
    {
       # Header pairs, as per Email::Simple::Header
       Email::Simple->new($msg)->header_obj->header_pairs,
-      
+
       # decoded via Email::MIME->new($msg)
       # $pmsg->body_str, or body_str of the first text/plain part (if it croaks), or $pmsg->body_raw
       # (all \r are stripped)
@@ -190,6 +200,7 @@ fill up the box).
 The raw message isn't kept for the Munger.  If you really need it, you can implement an input RE template of {(?<RAWMSG>[\s\S]+)}, and parse
 out the email message yourself.
 
-This class is persistent, keeping the [Mail::IMAPClient] object until shutdown.  However, it will still disconnect on close.
+This class is persistent, keeping the [Mail::IMAPClient] object until shutdown.  However, it will still disconnect on close, and will clear
+the object on error.
 
 =end wikidoc
