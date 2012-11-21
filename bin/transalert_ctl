@@ -9,7 +9,7 @@ package  # Hide from PAUSE
 use sanity;
 use Transform::Alert;
 
-use Log::Log4perl;
+use Log::Log4perl ':levels';
 use App::Daemon 'daemonize';
 use Config::General;
 use Time::HiRes 'sleep';  # (for once we're needing something else besides time...)
@@ -43,8 +43,7 @@ $SIG{__DIE__} = sub {
 
 # change the layout if we're using defaults
 unless ($l4p) {
-   use Log::Log4perl::Level;
-   $log->level(TRACE) if ($vv);
+   $log->level($TRACE) if ($vv);
 
    # (Log4Perl doesn't make this easy to change...)
    my $appender = $Log::Log4perl::Logger::APPENDER_BY_NAME{'FileApp'};
