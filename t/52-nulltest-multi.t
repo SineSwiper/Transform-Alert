@@ -1,5 +1,5 @@
 use sanity;
-use Test::Most tests => 28;
+use Test::Most tests => 32;
 
 use Path::Class;
 use lib dir(qw{ t lib })->stringify;
@@ -36,6 +36,10 @@ foreach my $str (
    '{ thingy => "I am an atomic playboy." }',
    '{ thingy => "I am a meat popsicle." }',
    '{ thingy => "I am a cheese sandwich." }',
+   'Running TestMunger::munge',
+   'Running TestMunger::change',
+   'Running TestMunger::never',
+   'Running TestMunger::always',
    'Sending alert for "null2"',
    'Sending alert for "null1"',
 ) {

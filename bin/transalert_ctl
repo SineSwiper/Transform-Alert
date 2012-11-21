@@ -22,6 +22,9 @@ use namespace::clean;
 my $l4p = App::Daemon::find_option( '-l4p', 1 );
 push @ARGV, '-l4p', $l4p if ($l4p);  # put it back
 
+# check for -vv option
+my $vv = App::Daemon::find_option( '-vv', 0 );
+
 # make sure we're starting before demanding a -c conf option
 daemonize;
 
@@ -40,6 +43,9 @@ $SIG{__DIE__} = sub {
 
 # change the layout if we're using defaults
 unless ($l4p) {
+   use Log::Log4perl::Level;
+   $log->level(TRACE) if ($vv);
+
    # (Log4Perl doesn't make this easy to change...)
    my $appender = $Log::Log4perl::Logger::APPENDER_BY_NAME{'FileApp'};
    $appender->layout(
@@ -114,6 +120,7 @@ __END__
       -u USER    Run as USER.  Only applies if running as root.  Defaults to 'nobody'.
       -l4p FILE  Loads FILE for Log4perl configuration.
       -v         Debug mode.  Ignored if -l4p option is specified.
+      -vv        Trace mode.  Ignored if -l4p option is specified.
 
 = DESCRIPTION
 
@@ -122,5 +129,7 @@ Most of this stuff is pretty obvious.  [App::Daemon] also has some useful inform
 = CAVEATS
 
 The {-l} and {-p} options should really have config file equivalents...
+
+Double {-v} options don't combine into {-vv}.
 
 =end wikidoc

@@ -1,5 +1,5 @@
 use sanity;
-use Test::Most tests => 18;
+use Test::Most tests => 22;
 
 use Path::Class;
 use lib dir(qw{ t lib })->stringify;
@@ -13,7 +13,7 @@ lives_ok { $ta->heartbeat for (1 .. 30) } '30 heartbeats';
 my $log = $log_file->slurp;
 
 foreach my $str (
-   'Looking at Output "null"...',           
+   'Looking at Output "null"...',
    'Looking at Input "test"...',
    'Found message: Ich bin ein Berliner!',
    'Found message: I am an atomic playboy.',
@@ -23,6 +23,7 @@ foreach my $str (
    '{ item => "cheese sandwich" }',
    '{ item => "atomic playboy" }',
    'Munger cancelled output',
+   'Running TestMunger::munge',
    '{ thingy => "meat popsicle" }',
    '{ thingy => "cheese sandwich" }',
    '{ thingy => "atomic playboy" }',
@@ -33,6 +34,9 @@ foreach my $str (
 foreach my $str (
    '{ item => "Ich bin ein Berliner!" }',
    '{ thingy => "Ich bin ein Berliner!" }',
+   'Running TestMunger::change',
+   'Running TestMunger::never',
+   'Running TestMunger::always',
    'Error ',
    'failed: ',
 ) {

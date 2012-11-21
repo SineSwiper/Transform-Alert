@@ -64,14 +64,14 @@ around BUILDARGS => sub {
    $hash->{input} = $class->new(
       connopts => delete $hash->{connopts}
    );
-   
+
    # translate templates
    $hash->{template}  = [ $hash->{template} ] unless (ref $hash->{template} eq 'ARRAY');
    $hash->{templates} = [ map {
       $_->{output_objs} = $outs;
       Transform::Alert::TemplateGrp->new($_);
    } @{ delete $hash->{template} } ];
-   
+
    $orig->($self, $hash);
 };
 
@@ -86,7 +86,7 @@ sub process {
    my $self = shift;
    my ($in, $log) = ($self->input, $self->log);
    $log->debug('Processing input...');
-   
+
    unless ($in->opened) {
       $log->debug('Opening input connection');
       $in->open;
@@ -99,8 +99,8 @@ sub process {
          $self->close_all;
          return;
       }
-      $log->info('   Found message: '.printable(elide($$msg, 200)) );
-      
+      $log->info('   Found message: '.printable(elide($$msg, int(2.5 ** $log->level) )) );
+
       # start the matching process
       foreach my $tmpl (@{ $self->templates }) {
          # input RE templates
@@ -116,7 +116,7 @@ sub process {
       }
    }
    $self->close_all;
-   
+
    return 1;
 }
 
@@ -127,10 +127,10 @@ sub close_all {
 
    $self->input->close;
    $_->close_all for (@{ $self->templates });
-   
+
    $self->last_finished(time);
    $log->debug('Finish time marker');
-   
+
    return 1;
 }
 
@@ -141,16 +141,16 @@ __END__
 =begin wikidoc
 
 = SYNOPSIS
- 
+
    # In your configuration
    <Input [name]>
       Type      [type]
       Interval  60  # seconds (default)
-      
+
       # <ConnOpts> section; module-specific
       # <Template> sections
    </Input>
- 
+
 = DESCRIPTION
 
 This is essentially a class used for handling {Input} sections.  In the grand scheme of things, the classes follow this hierarchy:
