@@ -1,6 +1,6 @@
 package Transform::Alert::Input::Syslogd;
 
-our $VERSION = '0.93'; # VERSION
+our $VERSION = '0.90'; # VERSION
 # ABSTRACT: Transform alerts from an internal Syslog daemon
 
 use sanity;
@@ -69,7 +69,7 @@ sub close { 1 }
 
 42;
 
-__END__
+
 
 =pod
 
@@ -145,3 +145,7 @@ This is free software, licensed under:
   The Artistic License 2.0 (GPL Compatible)
 
 =cut
+
+
+__END__
+

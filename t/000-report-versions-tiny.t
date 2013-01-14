@@ -73,6 +73,7 @@ eval { $v .= pmver('String::Escape','2010.002') };
 eval { $v .= pmver('Template','2.24') };
 eval { $v .= pmver('Test::CheckDeps','0.002') };
 eval { $v .= pmver('Test::Most','0.01') };
+eval { $v .= pmver('Test::Pod','1.41') };
 eval { $v .= pmver('Test::UseAllModules','0.10') };
 eval { $v .= pmver('namespace::clean','0.06') };
 eval { $v .= pmver('sanity','0.94') };

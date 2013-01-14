@@ -1,6 +1,6 @@
 package Transform::Alert::Output::SNMP::Set;
 
-our $VERSION = '0.93'; # VERSION
+our $VERSION = '0.90'; # VERSION
 # ABSTRACT: Transform alerts to SNMP set requests
 
 use sanity;
@@ -24,7 +24,7 @@ sub send {
 
 42;
 
-__END__
+
 
 =pod
 
@@ -109,3 +109,7 @@ This is free software, licensed under:
   The Artistic License 2.0 (GPL Compatible)
 
 =cut
+
+
+__END__
+

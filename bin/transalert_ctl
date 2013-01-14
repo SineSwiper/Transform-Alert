@@ -4,7 +4,7 @@ package  # Hide from PAUSE
 
 # PODNAME:  transalert_ctl
 # ABSTRACT: Command line daemon for Transform::Alert
-our $VERSION = '0.93'; # VERSION
+our $VERSION = '0.90'; # VERSION
 
 use sanity;
 use Transform::Alert;
@@ -21,6 +21,9 @@ use namespace::clean;
 # check to see if we have a l4p option
 my $l4p = App::Daemon::find_option( '-l4p', 1 );
 push @ARGV, '-l4p', $l4p if ($l4p);  # put it back
+
+# check for -vv option
+my $vv = App::Daemon::find_option( '-vv', 0 );
 
 # make sure we're starting before demanding a -c conf option
 daemonize;
@@ -40,11 +43,21 @@ $SIG{__DIE__} = sub {
 
 # change the layout if we're using defaults
 unless ($l4p) {
+   use Log::Log4perl::Level;
+   $log->level(TRACE) if ($vv);
+
    # (Log4Perl doesn't make this easy to change...)
    my $appender = $Log::Log4perl::Logger::APPENDER_BY_NAME{'FileApp'};
    $appender->layout(
       Log::Log4perl::Layout::PatternLayout::Multiline->new("[%d{ISO8601}] [%-5p] {%-25M{2}} %m%n")
    );
+
+   # Need to make sure it's watching for log moves
+   $appender->{appender}{recreate} = 1;
+   $appender->{appender}{recreate_check_signal} = 'HUP';
+   # (force a re-open)
+   $appender->file_close;
+   $appender->file_open;
 }
 
 # config file loading
@@ -82,7 +95,7 @@ while (1) {
    sleep $wait if ($wait > 0);
 };
 
-__END__
+
 
 =pod
 
@@ -103,14 +116,15 @@ transalert_ctl - Command line daemon for Transform::Alert
        stop       Stop the daemon.  Typically requires a -p option.
        status     Print out diagnostics on what the status of the daemon is.  Typically requires a -p option.
  
-    Options:   
-       -c FILE    Loads FILE for configuration.  Required to start the daemon.        
+    Options:
+       -c FILE    Loads FILE for configuration.  Required to start the daemon.
        -X         Foreground mode.  Log messages go to the screen.
        -l FILE    Sends Log4perl messages to FILE in background mode.  Defaults to ./transalert_ctl.log.
        -p FILE    Writes PID to FILE.  Defaults to ./transalert_ctl.pid.
        -u USER    Run as USER.  Only applies if running as root.  Defaults to 'nobody'.
        -l4p FILE  Loads FILE for Log4perl configuration.
        -v         Debug mode.  Ignored if -l4p option is specified.
+       -vv        Trace mode.  Ignored if -l4p option is specified.
 
 =head1 DESCRIPTION
 
@@ -121,6 +135,8 @@ Most of this stuff is pretty obvious.  L<App::Daemon> also has some useful infor
 =head1 CAVEATS
 
 The C<<< -l >>> and C<<< -p >>> options should really have config file equivalents...
+
+Double C<<< -v >>> options don't combine into C<<< -vv >>>.
 
 =head1 AVAILABILITY
 
@@ -143,3 +159,7 @@ This is free software, licensed under:
   The Artistic License 2.0 (GPL Compatible)
 
 =cut
+
+
+__END__
+

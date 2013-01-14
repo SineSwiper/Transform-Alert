@@ -1,6 +1,6 @@
 package Transform::Alert::Output;
 
-our $VERSION = '0.93'; # VERSION
+our $VERSION = '0.90'; # VERSION
 # ABSTRACT: Base role for Transform::Alert output types
 
 use sanity;
@@ -48,7 +48,7 @@ has template => (
 
 42;
 
-__END__
+
 
 =pod
 
@@ -143,3 +143,7 @@ This is free software, licensed under:
   The Artistic License 2.0 (GPL Compatible)
 
 =cut
+
+
+__END__
+

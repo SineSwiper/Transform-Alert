@@ -1,6 +1,6 @@
 package Transform::Alert::InputGrp;
 
-our $VERSION = '0.93'; # VERSION
+our $VERSION = '0.90'; # VERSION
 # ABSTRACT: Base class for Transform::Alert input groups
 
 use sanity;
@@ -64,14 +64,14 @@ around BUILDARGS => sub {
    $hash->{input} = $class->new(
       connopts => delete $hash->{connopts}
    );
-   
+
    # translate templates
    $hash->{template}  = [ $hash->{template} ] unless (ref $hash->{template} eq 'ARRAY');
    $hash->{templates} = [ map {
       $_->{output_objs} = $outs;
       Transform::Alert::TemplateGrp->new($_);
    } @{ delete $hash->{template} } ];
-   
+
    $orig->($self, $hash);
 };
 
@@ -86,7 +86,7 @@ sub process {
    my $self = shift;
    my ($in, $log) = ($self->input, $self->log);
    $log->debug('Processing input...');
-   
+
    unless ($in->opened) {
       $log->debug('Opening input connection');
       $in->open;
@@ -99,8 +99,8 @@ sub process {
          $self->close_all;
          return;
       }
-      $log->info('   Found message: '.printable(elide($$msg, 200)) );
-      
+      $log->info('   Found message: '.printable(elide($$msg, int(2.5 ** $log->level) )) );
+
       # start the matching process
       foreach my $tmpl (@{ $self->templates }) {
          # input RE templates
@@ -116,7 +116,7 @@ sub process {
       }
    }
    $self->close_all;
-   
+
    return 1;
 }
 
@@ -127,16 +127,16 @@ sub close_all {
 
    $self->input->close;
    $_->close_all for (@{ $self->templates });
-   
+
    $self->last_finished(time);
    $log->debug('Finish time marker');
-   
+
    return 1;
 }
 
 42;
 
-__END__
+
 
 =pod
 
@@ -198,3 +198,7 @@ This is free software, licensed under:
   The Artistic License 2.0 (GPL Compatible)
 
 =cut
+
+
+__END__
+

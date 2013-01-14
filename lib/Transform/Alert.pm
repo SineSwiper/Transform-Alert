@@ -1,6 +1,6 @@
 package Transform::Alert;
 
-our $VERSION = '0.93'; # VERSION
+our $VERSION = '0.90'; # VERSION
 # ABSTRACT: Transform alerts from one type to another type
 
 use sanity 0.94;
@@ -127,7 +127,7 @@ sub close_all {
 
 42;
 
-__END__
+
 
 =pod
 
@@ -513,3 +513,7 @@ This is free software, licensed under:
   The Artistic License 2.0 (GPL Compatible)
 
 =cut
+
+
+__END__
+
