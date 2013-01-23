@@ -27,9 +27,9 @@ sub opened { shift->_has_conn }
 sub get {
    my $self    = shift;
    my $syslogd = $self->_conn;
-   
+
    my $msg = $syslogd->get_message(Timeout => 0);
-   
+
    unless (defined $msg) {
       $self->log->error('Error grabbing Syslogd message: '.$syslogd->error);
       return;
@@ -38,14 +38,14 @@ sub get {
       $self->log->warn('No syslog message in queue during get()');
       return \(''), {};
    }
-   
+
    # rejoin message parts
    my $txt = $msg->remoteaddr.':'.$msg->remoteport.' - '.$msg->datagram;
    $msg->process_message;
    return (\$txt, {
       remoteaddr => $msg->remoteaddr,
       remoteport => $msg->remoteport,
-      
+
       priority => $msg->priority,
       facility => $msg->facility,
       severity => $msg->severity,
@@ -61,7 +61,7 @@ sub eof {
 
    # check if a message is waiting
    my $rin = '';
-   vec($rin, fileno($port), 1) = 1; 
+   vec($rin, fileno($port), 1) = 1;
    return not select($rin, undef, undef, 0);
 }
 
@@ -79,7 +79,7 @@ __END__
    <Input test>
       Type      Syslogd
       Interval  5  # you should set this to be very short
-      
+
       # See Net::Syslogd->new
       <ConnOpts>
          LocalAddr  192.168.1.1
@@ -88,9 +88,9 @@ __END__
       </ConnOpts>
       # <Template> tags...
    </Input>
- 
+
 = DESCRIPTION
- 
+
 This input type will spawn a syslog listener and process each message through the input template engine.  If it finds a match, the results of
 the match are sent to one or more outputs, depending on the group configuration.
 
@@ -109,7 +109,7 @@ the {Interval} setting should be set very low.  (But, not zero; that would be un
    {
       remoteaddr => $str,
       remoteport => $int,
-      
+
       priority => $int,
       facility => $str,  # text version
       severity => $str,  # text version
