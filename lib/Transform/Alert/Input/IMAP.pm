@@ -1,11 +1,11 @@
 package Transform::Alert::Input::IMAP;
 
-our $VERSION = '0.95'; # VERSION
+our $VERSION = '0.96'; # VERSION
 # ABSTRACT: Transform alerts from IMAP messages
 
 use sanity;
 use Moo;
-use MooX::Types::MooseLike::Base qw(Str ArrayRef InstanceOf);
+use MooX::Types::MooseLike::Base qw(Str ArrayRef InstanceOf Maybe);
 
 use Mail::IMAPClient;
 use Email::MIME;
@@ -22,7 +22,7 @@ has parsed_folder => (
 
 has _conn => (
    is        => 'rw',
-   isa       => InstanceOf['Mail::IMAPClient'],
+   isa       => Maybe[InstanceOf['Mail::IMAPClient']],
    lazy      => 1,
    default   => sub {
       my $self = shift;
@@ -53,7 +53,9 @@ around BUILDARGS => sub {
 
 sub open {
    my $self = shift;
-   my $imap = $self->_conn || return;
+   my $imap = $self->_conn ||
+      # maybe+default+error still creates an undef attr, which would pass an 'exists' check on predicate
+      do { $self->_clear_conn; return; };
 
    # figure out which state it's in
    unless ($imap->IsSelected) {

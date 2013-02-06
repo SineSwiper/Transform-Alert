@@ -1,6 +1,48 @@
 Revision History for Transform-Alert
 ====================================
 
+v0.96 2013-02-06
+----------------
+
+commit 5ecf86d7bb4f8e6724e22f2517b5a1c727f977ef
+Author: Brendan Byrd <Perl@ResonatorSoft.org>
+Date:   Wed Jan 23 11:45:35 2013 -0500
+
+    Change some I/O constructors to not fatally crash the daemon on error
+
+v0.95 2012-11-21
+----------------
+
+commit fbda81b23b8c7575b2c7effe0c35156b3c37bd27
+Author: Brendan Byrd <Perl@ResonatorSoft.org>
+Date:   Wed Nov 21 09:37:31 2012 -0500
+
+    TRACE fixes
+
+commit 76e3ea3dfc31ea385012c8ebd2e61160ea7ec451
+Author: Brendan Byrd <Perl@ResonatorSoft.org>
+Date:   Wed Nov 21 08:53:26 2012 -0500
+
+    Add TRACE logging (and -vv option)
+    Add more Munger method testing
+
+v0.94 2012-11-19
+----------------
+
+commit fab2cd6e1bda6033a9b7ae05caf7cb0fb534bb06
+Merge: c0d370f 7301154
+Author: Brendan Byrd <Perl@ResonatorSoft.org>
+Date:   Mon Nov 19 16:27:19 2012 -0500
+
+    Merge branch 'master' of github.com:SineSwiper/Transform-Alert
+
+commit c0d370f58152b3d1404497302047bf7b70052a54
+Author: Brendan Byrd <Perl@ResonatorSoft.org>
+Date:   Mon Nov 19 16:26:24 2012 -0500
+
+    Force recreation of log file on move
+    IMAP: Better error handling
+
 ===================================
 End of changes in the last 365 days
 ===================================

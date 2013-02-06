@@ -21,7 +21,7 @@ sub new {
    # init the logger...
    $log_file->remove;
    Log::Log4perl->init(\ qq{
-      log4perl.logger = DEBUG, FileApp
+      log4perl.logger = TRACE, FileApp
       log4perl.appender.FileApp = Log::Log4perl::Appender::File
       log4perl.appender.FileApp.filename = $log_file
       log4perl.appender.FileApp.layout   = PatternLayout::Multiline
