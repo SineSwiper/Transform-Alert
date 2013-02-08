@@ -29,7 +29,8 @@ has _session => (
 );
 
 sub open   {
-   shift->_session ||
+   my $self = shift;
+   $self->_session ||
       # maybe+default+error still creates an undef attr, which would pass an 'exists' check on predicate
       do { $self->_clear_session; return; };
 }
