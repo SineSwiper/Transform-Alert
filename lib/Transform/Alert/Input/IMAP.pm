@@ -1,6 +1,6 @@
 package Transform::Alert::Input::IMAP;
 
-our $VERSION = '0.96'; # VERSION
+our $VERSION = '0.95_002'; # VERSION
 # ABSTRACT: Transform alerts from IMAP messages
 
 use sanity;
@@ -66,9 +66,9 @@ sub open {
          $imap->login   || do { $self->log->error('IMAP Login failed: '        .$imap->LastError); return; };
       }
 
-      # might not have a folder set
-      unless ($imap->IsSelected) {
-         $imap->select('Inbox') || do { $self->log->error('IMAP Select failed: '.$imap->LastError); return; };
+      # might not have a folder set (or might have a specific Folder option)
+      if (!$imap->IsSelected || $self->connopts->{folder}) {
+         $imap->select($self->connopts->{folder} || 'Inbox') || do { $self->log->error('IMAP Select failed: '.$imap->LastError); return; };
       }
    }
 
@@ -210,26 +210,6 @@ out the email message yourself.
 
 This class is persistent, keeping the L<Mail::IMAPClient> object until shutdown.  However, it will still disconnect on close, and will clear
 the object on error.
-
-=head1 AVAILABILITY
-
-The project homepage is L<https://github.com/SineSwiper/Transform-Alert/wiki>.
-
-The latest version of this module is available from the Comprehensive Perl
-Archive Network (CPAN). Visit L<http://www.perl.com/CPAN/> to find a CPAN
-site near you, or see L<https://metacpan.org/module/Transform::Alert/>.
-
-=head1 AUTHOR
-
-Brendan Byrd <BBYRD@CPAN.org>
-
-=head1 COPYRIGHT AND LICENSE
-
-This software is Copyright (c) 2012 by Brendan Byrd.
-
-This is free software, licensed under:
-
-  The Artistic License 2.0 (GPL Compatible)
 
 =cut
 

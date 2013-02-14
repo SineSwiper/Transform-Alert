@@ -1,6 +1,6 @@
 package Transform::Alert::Output::Email;
 
-our $VERSION = '0.96'; # VERSION
+our $VERSION = '0.95_002'; # VERSION
 # ABSTRACT: Transform alerts to emails
 
 use sanity;
@@ -104,26 +104,6 @@ If you didn't guess, the C<<< TransportClass >>> option maps to a C<<< Email::Se
 This class is persistent, keeping the Transport object until shutdown.  How that translates in terms of connections is dependent on the
 Transport class chosen.  (In other words, the non-persistent SMTP transport class is still going to tear down the TCP connection before each
 message sent.)
-
-=head1 AVAILABILITY
-
-The project homepage is L<https://github.com/SineSwiper/Transform-Alert/wiki>.
-
-The latest version of this module is available from the Comprehensive Perl
-Archive Network (CPAN). Visit L<http://www.perl.com/CPAN/> to find a CPAN
-site near you, or see L<https://metacpan.org/module/Transform::Alert/>.
-
-=head1 AUTHOR
-
-Brendan Byrd <BBYRD@CPAN.org>
-
-=head1 COPYRIGHT AND LICENSE
-
-This software is Copyright (c) 2012 by Brendan Byrd.
-
-This is free software, licensed under:
-
-  The Artistic License 2.0 (GPL Compatible)
 
 =cut
 

@@ -25,55 +25,55 @@ no_index:
 provides:
   Transform::Alert:
     file: lib/Transform/Alert.pm
-    version: 0.96
+    version: 0.95_002
   Transform::Alert::Input:
     file: lib/Transform/Alert/Input.pm
-    version: 0.96
+    version: 0.95_002
   Transform::Alert::Input::Dummy:
     file: lib/Transform/Alert/Input/Dummy.pm
-    version: 0.96
+    version: 0.95_002
   Transform::Alert::Input::IMAP:
     file: lib/Transform/Alert/Input/IMAP.pm
-    version: 0.96
+    version: 0.95_002
   Transform::Alert::Input::POP3:
     file: lib/Transform/Alert/Input/POP3.pm
-    version: 0.96
+    version: 0.95_002
   Transform::Alert::Input::SNMPTrapd:
     file: lib/Transform/Alert/Input/SNMPTrapd.pm
-    version: 0.96
+    version: 0.95_002
   Transform::Alert::Input::Syslogd:
     file: lib/Transform/Alert/Input/Syslogd.pm
-    version: 0.96
+    version: 0.95_002
   Transform::Alert::InputGrp:
     file: lib/Transform/Alert/InputGrp.pm
-    version: 0.96
+    version: 0.95_002
   Transform::Alert::Output:
     file: lib/Transform/Alert/Output.pm
-    version: 0.96
+    version: 0.95_002
   Transform::Alert::Output::Email:
     file: lib/Transform/Alert/Output/Email.pm
-    version: 0.96
+    version: 0.95_002
   Transform::Alert::Output::Null:
     file: lib/Transform/Alert/Output/Null.pm
-    version: 0.96
+    version: 0.95_002
   Transform::Alert::Output::SNMP:
     file: lib/Transform/Alert/Output/SNMP.pm
-    version: 0.96
+    version: 0.95_002
   Transform::Alert::Output::SNMP::Inform:
     file: lib/Transform/Alert/Output/SNMP/Inform.pm
-    version: 0.96
+    version: 0.95_002
   Transform::Alert::Output::SNMP::Set:
     file: lib/Transform/Alert/Output/SNMP/Set.pm
-    version: 0.96
+    version: 0.95_002
   Transform::Alert::Output::SNMP::Trap:
     file: lib/Transform/Alert/Output/SNMP/Trap.pm
-    version: 0.96
+    version: 0.95_002
   Transform::Alert::Output::Syslog:
     file: lib/Transform/Alert/Output/Syslog.pm
-    version: 0.96
+    version: 0.95_002
   Transform::Alert::TemplateGrp:
     file: lib/Transform/Alert/TemplateGrp.pm
-    version: 0.96
+    version: 0.95_002
 requires:
   App::Daemon: 0.01
   Class::Load: 0.17
@@ -100,11 +100,11 @@ requires:
   perl: v5.10.1
   sanity: 0.94
 resources:
-  X_irc: irc://irc.perl.org/#web-simple
+  X_irc: irc://irc.perl.org/#distzilla
   bugtracker: https://github.com/SineSwiper/Transform-Alert/issues
   homepage: https://github.com/SineSwiper/Transform-Alert/wiki
   repository: git://github.com/SineSwiper/Transform-Alert.git
-version: 0.96
+version: 0.95_002
 x_Dist_Zilla:
   perl:
     version: 5.016000
@@ -312,10 +312,6 @@ x_Dist_Zilla:
     -
       class: Dist::Zilla::Plugin::ConfirmRelease
       name: '@Filter/ConfirmRelease'
-      version: 4.300027
-    -
-      class: Dist::Zilla::Plugin::UploadToCPAN
-      name: '@Filter/UploadToCPAN'
       version: 4.300027
     -
       class: Dist::Zilla::Plugin::InstallRelease

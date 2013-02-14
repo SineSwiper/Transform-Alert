@@ -33,7 +33,7 @@ Transform::Alert - Transform alerts from one type to another type
           TemplateFile  test_in/server01_email.re
           Munger        test_in/Munger.pm MyMunger->munge
           OutputName    test_out
-       </Template>         
+       </Template>
     </Input>
     <Output test_out>
        Type          Syslog
@@ -91,12 +91,12 @@ Or to show it with a UTF8 drawing, the platform works like this:
             ├── InTemplate + Munger ──┬── Output + OutTemplate
             │                         └── Output + OutTemplate
             ├── InTemplate + Munger ──┬── Output + OutTemplate
-            └── InTemplate ───────────┘ 
+            └── InTemplate ───────────┘
     Input ──┬── InTemplate ────────────── Output + OutTemplate
             └── InTemplate + Munger ───── Output + OutTemplate
 
 All L<inputs|Transform::Alert::Input> and L<outputs|Transform::Alert::Output> are separate modules, so if there isn't a protocol available, they
-are easy to make.  Input templates use a multi-line regular expression with named captures to categorize the variables.  Output templates are 
+are easy to make.  Input templates use a multi-line regular expression with named captures to categorize the variables.  Output templates are
 L<TT|Template::Toolkit> templates with a C<<< [% var %] >>> syntax.  If you need to transform the data after it's been captured, you can use a "munger"
 module to play with the variables any way you see fit.
 
@@ -149,7 +149,7 @@ The engine may someday be changed to have multi-processed inputs, but the need i
  
           Munger        [file] [class]->[method]  # optional
           OutputName    test_out    # one or more
-       </Template>         
+       </Template>
     </Input>
 
 All C<<< Input >>> sections must have one or more C<<< Template >>> sections.  (In this case, this is an input template.)  As messages are being processed,
@@ -193,7 +193,7 @@ More that one option means that the alert will be sent to multiple sources.
 Like C<<< Input >>>, C<<< Output >>> sections need to be uniquely named.  This name is used with the C<<< OutputName >>> option above.  Also like C<<< Input >>>, the
 C<<< Type >>> functions the same way (mapping to a C<<< Transform::Alert::Output::* >>> class), and C<<< ConnOpts >>> contains all of the module-specific options.
 
-Similar to C<<< Template >>> sections, the C<<< Output >>> section must either have a C<<< TemplateFile >>> or a C<<< Template >>> option.  However, you can only use a 
+Similar to C<<< Template >>> sections, the C<<< Output >>> section must either have a C<<< TemplateFile >>> or a C<<< Template >>> option.  However, you can only use a
 single template per C<<< Output >>>.  If you need more, use another section with most of the same options.
 
 =head2 Directory Structure
@@ -201,8 +201,8 @@ single template per C<<< Output >>>.  If you need more, use another section with
 Depending on how large your setup is, you may want to create a directory structure like this:
 
     /opt/transalert          # config, log, PID
-    /opt/transalert/input1   # various input template directories                 
-    /opt/transalert/input2   
+    /opt/transalert/input1   # various input template directories
+    /opt/transalert/input2
     /opt/transalert/input3
     /opt/transalert/outputs  # single directory for output templates
 
@@ -240,7 +240,7 @@ of L<Mungers|/Mungers>.
 
 =head2 Output Templates
 
-Output templates use L<Template::Toolkit>.  If you want a quick and dirty lesson on how they work, check out L<Template::Manual::Syntax>.  If 
+Output templates use L<Template::Toolkit>.  If you want a quick and dirty lesson on how they work, check out L<Template::Manual::Syntax>.  If
 B<that> is too wordy for you, then just remember that variables are replaced with a C<<< [% t.var %] >>> syntax.
 
 The variables passed to the Output (or Munger, if specified) will look like this:
@@ -272,7 +272,7 @@ Here's an example output template that looks similar to the input one above:
 =head2 Mungers
 
 Mungers are an optional second piece to the input template structure.  Regular expressions, as powerful as they are with finding and capturing
-information, only do just that.  Sometimes you need to warp the information you've captured to fit the mold that the output can use.  Or 
+information, only do just that.  Sometimes you need to warp the information you've captured to fit the mold that the output can use.  Or
 sometimes you need to validate the input in a better fashion than REs can provide.  Mungers fit both of those roles.
 
 Mungers are basically freeform Perl modules that transform andE<sol>or validate the input data passed to it.  Here's an example munger, straight
@@ -294,7 +294,8 @@ This munger does two (useless) things: change the name of the C<<< item >>> vari
 could just as easily do anything Perl can do to transform and validate the data.
 
 All mungers are called by their class (ie: C<<< TestMunger->munge >>>), so all of them should have a package name.  They should also return either
-C<<< undef >>> (as a rejection) or the variable list (as a hashref).
+C<<< undef >>> (as a rejection) or the variable list (as a hashref).  If the input ends up with multiple alerts, a munger can also pass an arrayref
+(of hashrefs), and they will be sent to the outputs individually.
 
 A munger could also become the B<primary> piece for input transformationE<sol>validation by not specifying a Template option.
 
@@ -318,8 +319,8 @@ Moar IE<sol>O:
 
     Inputs            Outputs
     ------            -------
-    HTTP::Atom        
-    HTTP::RSS         
+    HTTP::Atom
+    HTTP::RSS
     File::CSV         File::CSV
     File::Text        File::Text
                       IRC
@@ -335,49 +336,4 @@ L<Pegex> support for input templates, maybe when we stop playing with the syntax
 Multi-threaded andE<sol>or -processed inputsE<sol>outputs
 
 =back
-
-=head1 AVAILABILITY
-
-The project homepage is L<https://github.com/SineSwiper/Transform-Alert/wiki>.
-
-The latest version of this module is available from the Comprehensive Perl
-Archive Network (CPAN). Visit L<http://www.perl.com/CPAN/> to find a CPAN
-site near you, or see L<https://metacpan.org/module/Transform::Alert/>.
-
-=for :stopwords cpan testmatrix url annocpan anno bugtracker rt cpants kwalitee diff irc mailto metadata placeholders metacpan
-
-=head1 SUPPORT
-
-=head2 Internet Relay Chat
-
-You can get live help by using IRC ( Internet Relay Chat ). If you don't know what IRC is,
-please read this excellent guide: L<http://en.wikipedia.org/wiki/Internet_Relay_Chat>. Please
-be courteous and patient when talking to us, as we might be busy or sleeping! You can join
-those networks/channels and get help:
-
-=over 4
-
-=item *
-
-irc.perl.org
-
-You can connect to the server at 'irc.perl.org' and join this channel: #web-simple then talk to this person for help: SineSwiper.
-
-=back
-
-=head2 Bugs / Feature Requests
-
-Please report any bugs or feature requests via L<L<https://github.com/SineSwiper/Transform-Alert/issues>|GitHub>.
-
-=head1 AUTHOR
-
-Brendan Byrd <BBYRD@CPAN.org>
-
-=head1 COPYRIGHT AND LICENSE
-
-This software is Copyright (c) 2012 by Brendan Byrd.
-
-This is free software, licensed under:
-
-  The Artistic License 2.0 (GPL Compatible)
 

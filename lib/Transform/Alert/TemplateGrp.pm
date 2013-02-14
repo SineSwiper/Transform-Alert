@@ -1,6 +1,6 @@
 package Transform::Alert::TemplateGrp;
 
-our $VERSION = '0.96'; # VERSION
+our $VERSION = '0.95_002'; # VERSION
 # ABSTRACT: Base class for Transform::Alert template groups
 
 use sanity;
@@ -111,31 +111,36 @@ sub send_all {
       $log->trace( join "\n", map { '   '.$_ } split(/\n/, pp $vars) );
    }
 
+   # Support multiple outputs, if the munger sent them
+   $vars = [ $vars ] unless (ref $vars eq 'ARRAY');
+
    my $tt = Template->new();
-   foreach my $out_key (keys %{ $self->outputs }) {
-      $log->debug('Looking at Output "'.$out_key.'"...');
-      my $out = $self->outputs->{$out_key};
-      my $out_str = '';
+   foreach my $v (@$vars) {
+      foreach my $out_key (keys %{ $self->outputs }) {
+         $log->debug('Looking at Output "'.$out_key.'"...');
+         my $out = $self->outputs->{$out_key};
+         my $out_str = '';
 
-      $tt->process($out->template, $vars, \$out_str) || do {
-         $log->error('TT error for "$out_key": '.$tt->error);
-         $log->warn('Output error... bailing out of this process cycle!');
-         $self->close_all;
-         return;
-      };
+         $tt->process($out->template, $v, \$out_str) || do {
+            $log->error('TT error for "$out_key": '.$tt->error);
+            $log->warn('Output error... bailing out of this process cycle!');
+            $self->close_all;
+            return;
+         };
 
-      # send alert
-      unless ($out->opened) {
-         $log->debug('Opening output connection');
-         $out->open;
-      }
-      $log->info('Sending alert for "'.$out_key.'"');
-      $log->info('   Output message: '.printable(elide($out_str, int(2.5 ** $log->level) )) );
+         # send alert
+         unless ($out->opened) {
+            $log->debug('Opening output connection');
+            $out->open;
+         }
+         $log->info('Sending alert for "'.$out_key.'"');
+         $log->info('   Output message: '.printable(elide($out_str, int(2.5 ** $log->level) )) );
 
-      unless ($out->send(\$out_str)) {
-         $log->warn('Output error... bailing out of this process cycle!');
-         $self->close_all;
-         return;
+         unless ($out->send(\$out_str)) {
+            $log->warn('Output error... bailing out of this process cycle!');
+            $self->close_all;
+            return;
+         }
       }
    }
 
@@ -193,26 +198,6 @@ However, this isn't really a user-friendly interface.  So, shoo!
 =head1 SEE ALSO
 
 L<Transform::Alert>, which is what you should really be reading...
-
-=head1 AVAILABILITY
-
-The project homepage is L<https://github.com/SineSwiper/Transform-Alert/wiki>.
-
-The latest version of this module is available from the Comprehensive Perl
-Archive Network (CPAN). Visit L<http://www.perl.com/CPAN/> to find a CPAN
-site near you, or see L<https://metacpan.org/module/Transform::Alert/>.
-
-=head1 AUTHOR
-
-Brendan Byrd <BBYRD@CPAN.org>
-
-=head1 COPYRIGHT AND LICENSE
-
-This software is Copyright (c) 2012 by Brendan Byrd.
-
-This is free software, licensed under:
-
-  The Artistic License 2.0 (GPL Compatible)
 
 =cut
 

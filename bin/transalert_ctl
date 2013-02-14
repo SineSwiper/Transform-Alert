@@ -4,7 +4,7 @@ package  # Hide from PAUSE
 
 # PODNAME:  transalert_ctl
 # ABSTRACT: Command line daemon for Transform::Alert
-our $VERSION = '0.96'; # VERSION
+our $VERSION = '0.95_002'; # VERSION
 
 use sanity;
 use Transform::Alert;
@@ -136,26 +136,6 @@ Most of this stuff is pretty obvious.  L<App::Daemon> also has some useful infor
 The C<<< -l >>> and C<<< -p >>> options should really have config file equivalents...
 
 Double C<<< -v >>> options don't combine into C<<< -vv >>>.
-
-=head1 AVAILABILITY
-
-The project homepage is L<https://github.com/SineSwiper/Transform-Alert/wiki>.
-
-The latest version of this module is available from the Comprehensive Perl
-Archive Network (CPAN). Visit L<http://www.perl.com/CPAN/> to find a CPAN
-site near you, or see L<https://metacpan.org/module/Transform::Alert/>.
-
-=head1 AUTHOR
-
-Brendan Byrd <BBYRD@CPAN.org>
-
-=head1 COPYRIGHT AND LICENSE
-
-This software is Copyright (c) 2012 by Brendan Byrd.
-
-This is free software, licensed under:
-
-  The Artistic License 2.0 (GPL Compatible)
 
 =cut
 
