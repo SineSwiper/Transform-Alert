@@ -1,6 +1,6 @@
 package Transform::Alert::Input::IMAP;
 
-our $VERSION = '0.95_002'; # VERSION
+our $VERSION = '0.96'; # VERSION
 # ABSTRACT: Transform alerts from IMAP messages
 
 use sanity;
@@ -83,13 +83,15 @@ sub open {
 
 sub opened {
    my $self = shift;
-   $self->_has_conn and $self->_conn->IsSelected;
+   $self->_has_conn and $self->_conn and $self->_conn->IsSelected;
 }
 
 sub get {
    my $self = shift;
    my $uid  = shift @{$self->_list};
-   my $imap = $self->_conn;
+   my $imap = $self->_conn ||
+      # maybe+default+error still creates an undef attr, which would pass an 'exists' check on predicate
+      do { $self->_clear_conn; return; };
 
    my $msg = $imap->message_string($uid) || do { $self->log->error('Error grabbing IMAP message '.$uid.': '.$imap->LastError); return; };
    $msg =~ s/\r//g;
@@ -120,7 +122,12 @@ sub eof {
 
 sub close {
    my $self = shift;
-   my $imap = $self->_conn;
+   my $imap = $self->_conn || do {
+      # maybe+default+error still creates an undef attr, which would pass an 'exists' check on predicate
+      $self->_clear_list;
+      $self->_clear_conn;
+      return;
+   };
 
    $self->_clear_list;
    my $is_valid = $self->opened;

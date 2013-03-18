@@ -1,8 +1,14 @@
 Revision History for Transform-Alert
 ====================================
 
-v0.95_002 2013-02-14
---------------------
+v0.96 2013-03-18
+----------------
+
+commit 5fbea9d66a12f6903fc64d57fe7d10fdb69cb52a
+Author: Brendan Byrd <Perl@ResonatorSoft.org>
+Date:   Mon Mar 18 14:01:38 2013 -0400
+
+    Fix FATAL errors in IMAP because of undefined constructor
 
 commit a9b86de51b15a2f49b73714493faac1591f0f852
 Author: Brendan Byrd <Perl@ResonatorSoft.org>

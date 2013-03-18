@@ -4,7 +4,7 @@ package  # Hide from PAUSE
 
 # PODNAME:  transalert_ctl
 # ABSTRACT: Command line daemon for Transform::Alert
-our $VERSION = '0.95_002'; # VERSION
+our $VERSION = '0.96'; # VERSION
 
 use sanity;
 use Transform::Alert;
