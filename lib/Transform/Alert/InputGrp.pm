@@ -95,7 +95,7 @@ sub process {
       # get a message
       my ($msg, $hash) = $in->get;
       unless (defined $msg) {
-         $self->warn('Input error... bailing out of this process cycle!');
+         $log->warn('Input error... bailing out of this process cycle!');
          $self->close_all;
          return;
       }

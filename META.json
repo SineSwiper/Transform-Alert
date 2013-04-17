@@ -364,7 +364,7 @@
          {
             "class" : "Dist::Zilla::Plugin::TravisYML",
             "name" : "@Filter/TravisYML",
-            "version" : "0.95"
+            "version" : "0.96"
          },
          {
             "class" : "Dist::Zilla::Plugin::Git::CheckFor::CorrectBranch",
