@@ -148,7 +148,7 @@ sub close {
 
 42;
 
-
+__END__
 
 =pod
 
@@ -184,10 +184,12 @@ Transform::Alert::Input::IMAP - Transform alerts from IMAP messages
 This input type will read a IMAP mailbox and process each message through the input template engine.  If it finds a match, the results of the
 match are sent to one or more outputs, depending on the group configuration.
 
-See L<Mail::IMAPClient|Mail::IMAPClient#Parameters> for a list of the ConnOpts section parameters.
+See L<Mail::IMAPClient|Mail::IMAPClient/Parameters> for a list of the ConnOpts section parameters.
 
 The C<<< ParsedFolder >>> option is special.  If set, it will move all parsed messages to that folder.  If not, it will rely on the Unread flag to
 figure out which messages have been parsed or not parsed.
+
+The C<<< Folder >>> option (from L<Mail::IMAPClient>) can be specified to use a different folder than the default Inbox.
 
 =head1 OUTPUTS
 
@@ -209,6 +211,10 @@ Full text of the raw message, including headers.  All CRs are stripped.
 
 =head1 CAVEATS
 
+Special care should be made when using input templates on raw email messages.  For one, header order may change, which is difficult to
+manage with REs.  For another, the message is probably MIME-encoded and would contain 80-character splits.  Use of Mungers here is B<highly>
+recommended.
+
 You are responsible for setting up any archivingE<sol>deletion protocols for the mailbox, as this module will save everything (and potentially
 fill up the box).
 
@@ -219,7 +225,3 @@ This class is persistent, keeping the L<Mail::IMAPClient> object until shutdown.
 the object on error.
 
 =cut
-
-
-__END__
-

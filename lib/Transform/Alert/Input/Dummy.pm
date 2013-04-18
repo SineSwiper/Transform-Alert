@@ -26,7 +26,7 @@ sub close  { 1 }
 
 42;
 
-
+__END__
 
 =pod
 
@@ -67,7 +67,3 @@ A dummy string
     }
 
 =cut
-
-
-__END__
-

@@ -25,7 +25,7 @@ sub send {
 
 42;
 
-
+__END__
 
 =pod
 
@@ -103,7 +103,3 @@ No support for SNMPv1 traps yet, as the sending format is very different.  Patch
 Use L<Net::SNMPu>, when that gets released...
 
 =cut
-
-
-__END__
-

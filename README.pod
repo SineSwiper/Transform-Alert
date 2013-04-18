@@ -132,7 +132,7 @@ The C<<< Type >>> specifies the type of input used.  This maps to a C<<< Transfo
 be found with the corresponding documentation.
 
 The C<<< Interval >>> specifies how frequently the input should be checked (in seconds).  Server-based input shouldn't be checked too often, as it
-might be considered abusive.  In the case of overruns, the input will only be re-checked after the interval is complete.  (In other words, the
+might be considered abusive.  To prevent overruns, the input will only be re-checked after the interval is complete.  (In other words, the
 "last finished" time is recorded, not the "last start".)
 
 There is one C<<< ConnOpts >>> section in each input.  The options will be specific to each type, so look there for documentation.
@@ -152,17 +152,18 @@ The engine may someday be changed to have multi-processed inputs, but the need i
        </Template>
     </Input>
 
-All C<<< Input >>> sections must have one or more C<<< Template >>> sections.  (In this case, this is an input template.)  As messages are being processed,
-each message is tested on all of the templates.
+All C<<< Input >>> sections must have one or more C<<< Template >>> sections.  As messages are being processed, each message is tested on all of the
+templates.  Input messages will be ran through B<all> templates tied to that input, even if that message matched a previous template.  To prevent
+a message from matching multiple templates, make sure they are reasonably unique.
 
 All templates must either have a C<<< TemplateFile >>> or C<<< Template >>> option.  In most cases, you should stick with file-based templates, as inline
 templates are whitespace sensitive, and should only be used for single line REs.
 
 If you don't set a Template option, a template file is not used.  Without a Munger to validate the hash, these templates will be accepted (and
-sent to the output), as long as it passes data.
+sent to the outputs), as long as it passes data.
 
 The optional C<<< Munger >>> option can be used to specify a module used in changing the variables between the input and output.  (More details about
-Mungers further down.)  The option itself can be expressed in a number of ways:
+L<Mungers further down|/Mungers>.)  The option itself can be expressed in a number of ways:
 
     Munger  File.pm
     Munger  File.pm->method
@@ -175,7 +176,9 @@ If a class isn't specified, the first package name found in the file is used.  I
 isn't a file specified, it will try to load the class like C<<< use/require >>>.  (Technically, you could take advantage of the C<<< . >>> path in C<<< %INC >>>,
 but it's better to just provide the filename.)
 
-If both a C<<< Template >>>E<sol>{TemplateFile} & C<<< Munger >>> option are passed, it will test both forms as an AND-based match, testing the text form first.
+If both C<<< Template/File >>> & C<<< Munger >>> options are passed, it will test both forms as an AND-based match, testing the text form via template
+first.  This has the benefit of using the input templates as a "gatekeeper", and can be used to delegate different templates to different
+Mungers.  Any named captures from the input template will be passed as a C<<< t >>> hash in the variables to the Munger.
 
 The C<<< OutputName >>> options provide the name of the Output sources to use after a template match is found.  (These sources are defined below.)
 More that one option means that the alert will be sent to multiple sources.
@@ -206,15 +209,16 @@ Depending on how large your setup is, you may want to create a directory structu
     /opt/transalert/input3
     /opt/transalert/outputs  # single directory for output templates
 
-If your set up is small, you can get away with a single directory.  Just be sure to use the logE<sol>PID options in L<transalert_ctl>, so that they
-are put in the right directory.
+If your set up is small, you can get away with a single directory, or at least single inputE<sol>output directories.  Just be sure to use the logE<sol>PID
+options in L<transalert_ctl>, so that they are put in the right directory.
 
 =head2 Input Templates
 
 Input templates are basically big multi-line regular expressions.  These are NOT C<<< /x >>> whitespace-insensitive regular expressions, as those
 would make copyE<sol>pasting large bodies of text more difficult.  (There's an assumption that most input templates will have more static text than
-freeform RE parts.)  Besides, you can still use a C<<< (?x...) >>> construct.  Also, leading and trailing whitespace is removed, so stray whitespace
-should not be an issue there.  RE templates are also put into a C<<< ^$re$ >>>, with beginE<sol>end symbols, which can easily be overriden with C<<< .* >>>.
+freeform RE parts.)  Besides, you can still use a C<<< (?x...) >>> construct for whitespace-insensitivity and comments.  Also, leading and trailing
+whitespace is removed, so stray whitespace should not be an issue there.  RE templates are also put into a C<<< ^$re$ >>>, with beginE<sol>end symbols,
+which can easily be overriden with C<<< .* >>>.
 
 Please note that a matched template doesn't stop the matching process, so make sure the templates are unique enough if you don't want to
 match multiple templates.
@@ -254,7 +258,8 @@ The variables passed to the Output (or Munger, if specified) will look like this
        }
     }
 
-For a structure of the C<<< p >>> hash passed, look at the documentation for that input module.
+For a structure of the C<<< p >>> hash passed, look at the documentation for that input module (under C<<< Preparsed Hash >>>).  Note that Munger mangling
+could totally change the structure of the hash passed to the Outputs, depending on what it returns.
 
 Here's an example output template that looks similar to the input one above:
 
@@ -303,9 +308,43 @@ Mungers are also passed the L<TemplateGrp|Transform::Alert::TemplateGrp> object.
 
     $tmpl_grp->log->debug("Munger didn't like Message Body");
 
+=head2 Variable Passing
+
+If you're still confused on the variable passing, look at it this way:
+
+    Input ──┬── $text ───── InTemplate ───── t => { %+ } ──┬── Munger ───── { ??? } ───── OutTemplate ───── $str ───── Output
+            └── $hash ────────────────────── p => $hash  ──┘
+ 
+    Input ──┬── $text ────────────────────── t => {    } ──┬── Munger ───── { ??? } ───── OutTemplate ───── $str ───── Output
+            └── $hash ────────────────────── p => $hash  ──┘
+ 
+    Input ──┬── $text ───── InTemplate ───── t => { %+ } ──┬───────────────────────────── OutTemplate ───── $str ───── Output
+            └── $hash ────────────────────── p => $hash  ──┘
+ 
+    Input ──┬── $text ────────────────────── t => {    } ──┬── Munger ───── [ { ??? }, ── OutTemplate ───── $str ───── Output
+            └── $hash ────────────────────── p => $hash  ──┘                  { ??? }, ── OutTemplate ───── $str ───── Output
+                                                                              { ??? } ] ─ OutTemplate ───── $str ───── Output
+
 =head1 CAVEATS
 
+=over
+
+=item *
+
 This doesn't work on Windows.  Blame L<Proc::ProcessTable>.  Or rather, L<this bug|https://rt.cpan.org/Ticket/Display.html?id=75931>.
+
+=back
+
+=over
+
+=item *
+
+One would consider this a grand feat of over-engineering, which doesn't apply to every single protocol cleanly.  For example,
+
+=back
+
+   email input templates alone probably shouldn't be used, as header order might change, and the SNMP I/O doesn't translate to text
+   very well.  YMMV.
 
 =head1 TODO
 

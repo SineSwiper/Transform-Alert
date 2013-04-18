@@ -25,7 +25,7 @@ sub send {
 
 42;
 
-
+__END__
 
 =pod
 
@@ -99,7 +99,3 @@ Make sure these are included in your template.
 Use L<Net::SNMPu>, when that gets released...
 
 =cut
-
-
-__END__
-

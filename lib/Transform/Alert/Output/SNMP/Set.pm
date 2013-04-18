@@ -24,7 +24,7 @@ sub send {
 
 42;
 
-
+__END__
 
 =pod
 
@@ -89,7 +89,3 @@ A list of object types can be found L<here|https://metacpan.org/source/Net::SNMP
 Use L<Net::SNMPu>, when that gets released...
 
 =cut
-
-
-__END__
-

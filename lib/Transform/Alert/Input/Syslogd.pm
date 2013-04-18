@@ -69,7 +69,7 @@ sub close { 1 }
 
 42;
 
-
+__END__
 
 =pod
 
@@ -125,7 +125,3 @@ the C<<< Interval >>> setting should be set very low.  (But, not zero; that woul
     }
 
 =cut
-
-
-__END__
-

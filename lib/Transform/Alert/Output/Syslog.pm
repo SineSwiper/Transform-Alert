@@ -50,7 +50,7 @@ sub close { 1; }
 
 42;
 
-
+__END__
 
 =pod
 
@@ -89,7 +89,3 @@ L<Net::Syslog> has UDP connections hard-coded into its module.  TCP
 usage is rare, anyway.
 
 =cut
-
-
-__END__
-

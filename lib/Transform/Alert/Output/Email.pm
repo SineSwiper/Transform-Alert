@@ -64,7 +64,7 @@ sub close { 1; }
 
 42;
 
-
+__END__
 
 =pod
 
@@ -106,7 +106,3 @@ Transport class chosen.  (In other words, the non-persistent SMTP transport clas
 message sent.)
 
 =cut
-
-
-__END__
-

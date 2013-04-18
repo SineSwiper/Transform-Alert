@@ -155,7 +155,7 @@ sub close_all {
 
 42;
 
-
+__END__
 
 =pod
 
@@ -200,7 +200,3 @@ However, this isn't really a user-friendly interface.  So, shoo!
 L<Transform::Alert>, which is what you should really be reading...
 
 =cut
-
-
-__END__
-

@@ -58,7 +58,7 @@ sub _translate_msg {
 
 42;
 
-
+__END__
 
 =pod
 
@@ -96,7 +96,3 @@ This is actually a base class.  You should use one of the other sub-classes of t
 Use L<Net::SNMPu>, when that gets released...
 
 =cut
-
-
-__END__
-

@@ -1,8 +1,26 @@
 Revision History for Transform-Alert
 ====================================
 
-v0.96 2013-04-17
+v0.96 2013-04-18
 ----------------
+
+commit 9dd81590b07d12c6b2cb77955eb65d69f2f24342
+Author: Brendan Byrd <Perl@ResonatorSoft.org>
+Date:   Thu Apr 18 17:41:06 2013 -0400
+
+    Clean up docs a bit
+
+commit 6d4f60e349b4f77d95c6b76bae839d7db8d9be7d
+Author: Brendan Byrd <Perl@ResonatorSoft.org>
+Date:   Thu Apr 18 13:58:15 2013 -0400
+
+    Fix FATAL bug in InputGrp on Input error
+
+commit ffe0b95fc260b530d53dcff3f2913d356d9a30b5
+Author: Brendan Byrd <Perl@ResonatorSoft.org>
+Date:   Thu Apr 18 13:58:05 2013 -0400
+
+    Prevent "Please tell me who you are" errors for certain DZIL configs
 
 commit 5fbea9d66a12f6903fc64d57fe7d10fdb69cb52a
 Author: Brendan Byrd <Perl@ResonatorSoft.org>

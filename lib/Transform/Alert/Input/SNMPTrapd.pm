@@ -79,7 +79,7 @@ sub close { 1 }
 
 42;
 
-
+__END__
 
 =pod
 
@@ -153,7 +153,3 @@ C<<< Interval >>> setting should be set very low.  (But, not zero; that would be
 Admittedly, the datagram of a SNMP trap isn't all that useful, so the text version is somewhat useless...
 
 =cut
-
-
-__END__
-

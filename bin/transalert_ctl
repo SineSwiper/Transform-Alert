@@ -94,7 +94,7 @@ while (1) {
    sleep $wait if ($wait > 0);
 };
 
-
+__END__
 
 =pod
 
@@ -138,7 +138,3 @@ The C<<< -l >>> and C<<< -p >>> options should really have config file equivalen
 Double C<<< -v >>> options don't combine into C<<< -vv >>>.
 
 =cut
-
-
-__END__
-
