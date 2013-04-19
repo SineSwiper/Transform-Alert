@@ -198,4 +198,24 @@ L<IMAP|Transform::Alert::Input::IMAP>.
 The raw message isn't kept for the Munger.  If you really need it, you can implement an input RE template of C<<< (?<RAWMSG>[\s\S]+) >>>, and parse
 out the email message yourself.
 
+=head1 AVAILABILITY
+
+The project homepage is L<https://github.com/SineSwiper/Transform-Alert/wiki>.
+
+The latest version of this module is available from the Comprehensive Perl
+Archive Network (CPAN). Visit L<http://www.perl.com/CPAN/> to find a CPAN
+site near you, or see L<https://metacpan.org/module/Transform::Alert/>.
+
+=head1 AUTHOR
+
+Brendan Byrd <BBYRD@CPAN.org>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is Copyright (c) 2013 by Brendan Byrd.
+
+This is free software, licensed under:
+
+  The Artistic License 2.0 (GPL Compatible)
+
 =cut

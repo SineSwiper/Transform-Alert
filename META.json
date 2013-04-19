@@ -148,7 +148,7 @@
          "url" : "git://github.com/SineSwiper/Transform-Alert.git",
          "web" : "https://github.com/SineSwiper/Transform-Alert"
       },
-      "x_irc" : "irc://irc.perl.org/#distzilla"
+      "x_irc" : "irc://irc.perl.org/#web-simple"
    },
    "version" : "1.00",
    "x_Dist_Zilla" : {
@@ -409,6 +409,11 @@
          {
             "class" : "Dist::Zilla::Plugin::ConfirmRelease",
             "name" : "@Filter/ConfirmRelease",
+            "version" : "4.300034"
+         },
+         {
+            "class" : "Dist::Zilla::Plugin::UploadToCPAN",
+            "name" : "@Filter/UploadToCPAN",
             "version" : "4.300034"
          },
          {

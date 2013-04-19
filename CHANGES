@@ -4,41 +4,19 @@ Revision History for Transform-Alert
 v1.00 2013-04-19
 ----------------
 
-commit 2a0ff91483d068f31543d87146bef83c5511213a
+commit 54e829b68d08253f716879101d1d59c41cb18b3a
 Author: Brendan Byrd <Perl@ResonatorSoft.org>
-Date:   Thu Apr 18 18:51:05 2013 -0400
+Date:   Fri Apr 19 13:44:48 2013 -0400
 
-    Final test prior to v1.00 release
+    Clean up Variable Passing graphic
 
-commit 9dd81590b07d12c6b2cb77955eb65d69f2f24342
+commit e1ae968b34085c3d9eb9d844de39691359b412b2
 Author: Brendan Byrd <Perl@ResonatorSoft.org>
-Date:   Thu Apr 18 17:41:06 2013 -0400
-
-    Clean up docs a bit
-
-commit 6d4f60e349b4f77d95c6b76bae839d7db8d9be7d
-Author: Brendan Byrd <Perl@ResonatorSoft.org>
-Date:   Thu Apr 18 13:58:15 2013 -0400
-
-    Fix FATAL bug in InputGrp on Input error
-
-commit ffe0b95fc260b530d53dcff3f2913d356d9a30b5
-Author: Brendan Byrd <Perl@ResonatorSoft.org>
-Date:   Thu Apr 18 13:58:05 2013 -0400
-
-    Prevent "Please tell me who you are" errors for certain DZIL configs
-
-commit 5fbea9d66a12f6903fc64d57fe7d10fdb69cb52a
-Author: Brendan Byrd <Perl@ResonatorSoft.org>
-Date:   Mon Mar 18 14:01:38 2013 -0400
-
-    Fix FATAL errors in IMAP because of undefined constructor
-
-commit a9b86de51b15a2f49b73714493faac1591f0f852
-Author: Brendan Byrd <Perl@ResonatorSoft.org>
-Date:   Thu Feb 14 10:17:07 2013 -0500
+Date:   Fri Apr 19 11:03:19 2013 -0400
 
     Fix IMAP Folder option
+    Fix a few FATAL crashes, due to Input/IMAP errors
+    Clean up docs a bit
     Add log line display for successful input template counts
     Add support for multiple outputs via munger
     Remove Output/Print.pm, since it didn't work, anyway

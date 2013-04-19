@@ -100,7 +100,7 @@ requires:
   perl: v5.10.1
   sanity: 0.94
 resources:
-  X_irc: irc://irc.perl.org/#distzilla
+  X_irc: irc://irc.perl.org/#web-simple
   bugtracker: https://github.com/SineSwiper/Transform-Alert/issues
   homepage: https://github.com/SineSwiper/Transform-Alert/wiki
   repository: git://github.com/SineSwiper/Transform-Alert.git
@@ -312,6 +312,10 @@ x_Dist_Zilla:
     -
       class: Dist::Zilla::Plugin::ConfirmRelease
       name: '@Filter/ConfirmRelease'
+      version: 4.300034
+    -
+      class: Dist::Zilla::Plugin::UploadToCPAN
+      name: '@Filter/UploadToCPAN'
       version: 4.300034
     -
       class: Dist::Zilla::Plugin::InstallRelease

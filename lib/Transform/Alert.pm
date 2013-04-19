@@ -443,18 +443,20 @@ Mungers are also passed the L<TemplateGrp|Transform::Alert::TemplateGrp> object.
 
 If you're still confused on the variable passing, look at it this way:
 
-    Input ──┬── $text ───── InTemplate ───── t => { %+ } ──┬── Munger ───── { ??? } ───── OutTemplate ───── $str ───── Output
+    Input ──┬── $text ───── InTemplate ───── t => { %+ } ──┬── Munger ───── { ??? } ───── Out...
             └── $hash ────────────────────── p => $hash  ──┘
  
-    Input ──┬── $text ────────────────────── t => {    } ──┬── Munger ───── { ??? } ───── OutTemplate ───── $str ───── Output
+    Input ──┬── $text ────────────────────── t => {    } ──┬── Munger ───── { ??? } ───── Out...
             └── $hash ────────────────────── p => $hash  ──┘
  
-    Input ──┬── $text ───── InTemplate ───── t => { %+ } ──┬───────────────────────────── OutTemplate ───── $str ───── Output
+    Input ──┬── $text ───── InTemplate ───── t => { %+ } ──┬───────────────────────────── Out...
             └── $hash ────────────────────── p => $hash  ──┘
  
-    Input ──┬── $text ────────────────────── t => {    } ──┬── Munger ───── [ { ??? }, ── OutTemplate ───── $str ───── Output
-            └── $hash ────────────────────── p => $hash  ──┘                  { ??? }, ── OutTemplate ───── $str ───── Output
-                                                                              { ??? } ] ─ OutTemplate ───── $str ───── Output
+    Input ──┬── $text ────────────────────── t => {    } ──┬── Munger ───── [ { ??? }, ── Out...
+            └── $hash ────────────────────── p => $hash  ──┘                  { ??? }, ── Out...
+                                                                              { ??? } ] ─ Out...
+ 
+    ...OutTemplate ───── $str ───── Output
 
 =head1 CAVEATS
 
@@ -506,5 +508,50 @@ L<Pegex> support for input templates, maybe when we stop playing with the syntax
 Multi-threaded andE<sol>or -processed inputsE<sol>outputs
 
 =back
+
+=head1 AVAILABILITY
+
+The project homepage is L<https://github.com/SineSwiper/Transform-Alert/wiki>.
+
+The latest version of this module is available from the Comprehensive Perl
+Archive Network (CPAN). Visit L<http://www.perl.com/CPAN/> to find a CPAN
+site near you, or see L<https://metacpan.org/module/Transform::Alert/>.
+
+=for :stopwords cpan testmatrix url annocpan anno bugtracker rt cpants kwalitee diff irc mailto metadata placeholders metacpan
+
+=head1 SUPPORT
+
+=head2 Internet Relay Chat
+
+You can get live help by using IRC ( Internet Relay Chat ). If you don't know what IRC is,
+please read this excellent guide: L<http://en.wikipedia.org/wiki/Internet_Relay_Chat>. Please
+be courteous and patient when talking to us, as we might be busy or sleeping! You can join
+those networks/channels and get help:
+
+=over 4
+
+=item *
+
+irc.perl.org
+
+You can connect to the server at 'irc.perl.org' and join this channel: #web-simple then talk to this person for help: SineSwiper.
+
+=back
+
+=head2 Bugs / Feature Requests
+
+Please report any bugs or feature requests via L<L<https://github.com/SineSwiper/Transform-Alert/issues>|GitHub>.
+
+=head1 AUTHOR
+
+Brendan Byrd <BBYRD@CPAN.org>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is Copyright (c) 2013 by Brendan Byrd.
+
+This is free software, licensed under:
+
+  The Artistic License 2.0 (GPL Compatible)
 
 =cut
