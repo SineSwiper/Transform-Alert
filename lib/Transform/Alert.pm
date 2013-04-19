@@ -419,18 +419,20 @@ Mungers are also passed the [TemplateGrp|Transform::Alert::TemplateGrp] object. 
 
 If you're still confused on the variable passing, look at it this way:
 
-   Input ──┬── $text ───── InTemplate ───── t => { %+ } ──┬── Munger ───── { ??? } ───── OutTemplate ───── $str ───── Output
+   Input ──┬── $text ───── InTemplate ───── t => { %+ } ──┬── Munger ───── { ??? } ───── Out...
            └── $hash ────────────────────── p => $hash  ──┘
 
-   Input ──┬── $text ────────────────────── t => {    } ──┬── Munger ───── { ??? } ───── OutTemplate ───── $str ───── Output
+   Input ──┬── $text ────────────────────── t => {    } ──┬── Munger ───── { ??? } ───── Out...
            └── $hash ────────────────────── p => $hash  ──┘
 
-   Input ──┬── $text ───── InTemplate ───── t => { %+ } ──┬───────────────────────────── OutTemplate ───── $str ───── Output
+   Input ──┬── $text ───── InTemplate ───── t => { %+ } ──┬───────────────────────────── Out...
            └── $hash ────────────────────── p => $hash  ──┘
 
-   Input ──┬── $text ────────────────────── t => {    } ──┬── Munger ───── [ { ??? }, ── OutTemplate ───── $str ───── Output
-           └── $hash ────────────────────── p => $hash  ──┘                  { ??? }, ── OutTemplate ───── $str ───── Output
-                                                                             { ??? } ] ─ OutTemplate ───── $str ───── Output
+   Input ──┬── $text ────────────────────── t => {    } ──┬── Munger ───── [ { ??? }, ── Out...
+           └── $hash ────────────────────── p => $hash  ──┘                  { ??? }, ── Out...
+                                                                             { ??? } ] ─ Out...
+
+   ...OutTemplate ───── $str ───── Output
 
 = CAVEATS
 
