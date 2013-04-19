@@ -1,6 +1,6 @@
 package Transform::Alert::Input::Syslogd;
 
-our $VERSION = '0.96'; # VERSION
+our $VERSION = '1.00'; # VERSION
 # ABSTRACT: Transform alerts from an internal Syslog daemon
 
 use sanity;

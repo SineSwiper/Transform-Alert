@@ -1,6 +1,6 @@
 package Transform::Alert::Input::SNMPTrapd;
 
-our $VERSION = '0.96'; # VERSION
+our $VERSION = '1.00'; # VERSION
 # ABSTRACT: Transform alerts from an internal SNMP Trap daemon
 
 use sanity;

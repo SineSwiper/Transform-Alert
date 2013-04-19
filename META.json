@@ -70,71 +70,71 @@
    "provides" : {
       "Transform::Alert" : {
          "file" : "lib/Transform/Alert.pm",
-         "version" : "0.96"
+         "version" : "1.00"
       },
       "Transform::Alert::Input" : {
          "file" : "lib/Transform/Alert/Input.pm",
-         "version" : "0.96"
+         "version" : "1.00"
       },
       "Transform::Alert::Input::Dummy" : {
          "file" : "lib/Transform/Alert/Input/Dummy.pm",
-         "version" : "0.96"
+         "version" : "1.00"
       },
       "Transform::Alert::Input::IMAP" : {
          "file" : "lib/Transform/Alert/Input/IMAP.pm",
-         "version" : "0.96"
+         "version" : "1.00"
       },
       "Transform::Alert::Input::POP3" : {
          "file" : "lib/Transform/Alert/Input/POP3.pm",
-         "version" : "0.96"
+         "version" : "1.00"
       },
       "Transform::Alert::Input::SNMPTrapd" : {
          "file" : "lib/Transform/Alert/Input/SNMPTrapd.pm",
-         "version" : "0.96"
+         "version" : "1.00"
       },
       "Transform::Alert::Input::Syslogd" : {
          "file" : "lib/Transform/Alert/Input/Syslogd.pm",
-         "version" : "0.96"
+         "version" : "1.00"
       },
       "Transform::Alert::InputGrp" : {
          "file" : "lib/Transform/Alert/InputGrp.pm",
-         "version" : "0.96"
+         "version" : "1.00"
       },
       "Transform::Alert::Output" : {
          "file" : "lib/Transform/Alert/Output.pm",
-         "version" : "0.96"
+         "version" : "1.00"
       },
       "Transform::Alert::Output::Email" : {
          "file" : "lib/Transform/Alert/Output/Email.pm",
-         "version" : "0.96"
+         "version" : "1.00"
       },
       "Transform::Alert::Output::Null" : {
          "file" : "lib/Transform/Alert/Output/Null.pm",
-         "version" : "0.96"
+         "version" : "1.00"
       },
       "Transform::Alert::Output::SNMP" : {
          "file" : "lib/Transform/Alert/Output/SNMP.pm",
-         "version" : "0.96"
+         "version" : "1.00"
       },
       "Transform::Alert::Output::SNMP::Inform" : {
          "file" : "lib/Transform/Alert/Output/SNMP/Inform.pm",
-         "version" : "0.96"
+         "version" : "1.00"
       },
       "Transform::Alert::Output::SNMP::Set" : {
          "file" : "lib/Transform/Alert/Output/SNMP/Set.pm",
-         "version" : "0.96"
+         "version" : "1.00"
       },
       "Transform::Alert::Output::SNMP::Trap" : {
          "file" : "lib/Transform/Alert/Output/SNMP/Trap.pm",
-         "version" : "0.96"
+         "version" : "1.00"
       },
       "Transform::Alert::Output::Syslog" : {
          "file" : "lib/Transform/Alert/Output/Syslog.pm",
-         "version" : "0.96"
+         "version" : "1.00"
       },
       "Transform::Alert::TemplateGrp" : {
          "file" : "lib/Transform/Alert/TemplateGrp.pm",
-         "version" : "0.96"
+         "version" : "1.00"
       }
    },
    "release_status" : "stable",
@@ -150,7 +150,7 @@
       },
       "x_irc" : "irc://irc.perl.org/#distzilla"
    },
-   "version" : "0.96",
+   "version" : "1.00",
    "x_Dist_Zilla" : {
       "perl" : {
          "version" : "5.010001"

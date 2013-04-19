@@ -1,6 +1,6 @@
 package Transform::Alert::Input::POP3;
 
-our $VERSION = '0.96'; # VERSION
+our $VERSION = '1.00'; # VERSION
 # ABSTRACT: Transform alerts from POP3 messages
 
 use sanity;

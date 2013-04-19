@@ -1,6 +1,6 @@
 package Transform::Alert;
 
-our $VERSION = '0.96'; # VERSION
+our $VERSION = '1.00'; # VERSION
 # ABSTRACT: Transform alerts from one type to another type
 
 use sanity 0.94;

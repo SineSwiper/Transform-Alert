@@ -1,8 +1,14 @@
 Revision History for Transform-Alert
 ====================================
 
-v0.96 2013-04-18
+v1.00 2013-04-19
 ----------------
+
+commit 2a0ff91483d068f31543d87146bef83c5511213a
+Author: Brendan Byrd <Perl@ResonatorSoft.org>
+Date:   Thu Apr 18 18:51:05 2013 -0400
+
+    Final test prior to v1.00 release
 
 commit 9dd81590b07d12c6b2cb77955eb65d69f2f24342
 Author: Brendan Byrd <Perl@ResonatorSoft.org>
