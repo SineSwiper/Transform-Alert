@@ -439,8 +439,8 @@ If you're still confused on the variable passing, look at it this way:
 * This doesn't work on Windows.  Blame [Proc::ProcessTable].  Or rather, [this bug|https://rt.cpan.org/Ticket/Display.html?id=75931].
 
 * One would consider this a grand feat of over-engineering, which doesn't apply to every single protocol cleanly.  For example,
-  email input templates alone probably shouldn't be used, as header order might change, and the SNMP I/O doesn't translate to text
-  very well.  YMMV.
+email input templates alone probably shouldn't be used, as header order might change, and the SNMP I/O doesn't translate to text
+very well.  YMMV.
 
 = TODO
 
