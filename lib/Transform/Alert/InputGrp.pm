@@ -95,13 +95,14 @@ sub process {
       # get a message
       my ($msg, $hash) = $in->get;
       unless (defined $msg) {
-         $self->warn('Input error... bailing out of this process cycle!');
+         $log->warn('Input error... bailing out of this process cycle!');
          $self->close_all;
          return;
       }
       $log->info('   Found message: '.printable(elide($$msg, int(2.5 ** $log->level) )) );
 
       # start the matching process
+      my $tmpl_count = 0;
       foreach my $tmpl (@{ $self->templates }) {
          # input RE templates
          my $vars = {};
@@ -109,11 +110,13 @@ sub process {
             next unless ($$msg =~ $tmpl->regexp);  # found one
             $vars = { %+ };  # untie
          }
+         $tmpl_count++;
          $tmpl->send_all({
             t => $vars,
             p => $hash,
          });
       }
+      $log->info('   '.($tmpl_count ? $tmpl_count : 'No').' matching template'.($tmpl_count == 1 ? '' : 's').' found');
    }
    $self->close_all;
 

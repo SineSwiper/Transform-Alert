@@ -111,31 +111,36 @@ sub send_all {
       $log->trace( join "\n", map { '   '.$_ } split(/\n/, pp $vars) );
    }
 
+   # Support multiple outputs, if the munger sent them
+   $vars = [ $vars ] unless (ref $vars eq 'ARRAY');
+
    my $tt = Template->new();
-   foreach my $out_key (keys %{ $self->outputs }) {
-      $log->debug('Looking at Output "'.$out_key.'"...');
-      my $out = $self->outputs->{$out_key};
-      my $out_str = '';
+   foreach my $v (@$vars) {
+      foreach my $out_key (keys %{ $self->outputs }) {
+         $log->debug('Looking at Output "'.$out_key.'"...');
+         my $out = $self->outputs->{$out_key};
+         my $out_str = '';
 
-      $tt->process($out->template, $vars, \$out_str) || do {
-         $log->error('TT error for "$out_key": '.$tt->error);
-         $log->warn('Output error... bailing out of this process cycle!');
-         $self->close_all;
-         return;
-      };
+         $tt->process($out->template, $v, \$out_str) || do {
+            $log->error('TT error for "$out_key": '.$tt->error);
+            $log->warn('Output error... bailing out of this process cycle!');
+            $self->close_all;
+            return;
+         };
 
-      # send alert
-      unless ($out->opened) {
-         $log->debug('Opening output connection');
-         $out->open;
-      }
-      $log->info('Sending alert for "'.$out_key.'"');
-      $log->info('   Output message: '.printable(elide($out_str, int(2.5 ** $log->level) )) );
+         # send alert
+         unless ($out->opened) {
+            $log->debug('Opening output connection');
+            $out->open;
+         }
+         $log->info('Sending alert for "'.$out_key.'"');
+         $log->info('   Output message: '.printable(elide($out_str, int(2.5 ** $log->level) )) );
 
-      unless ($out->send(\$out_str)) {
-         $log->warn('Output error... bailing out of this process cycle!');
-         $self->close_all;
-         return;
+         unless ($out->send(\$out_str)) {
+            $log->warn('Output error... bailing out of this process cycle!');
+            $self->close_all;
+            return;
+         }
       }
    }
 

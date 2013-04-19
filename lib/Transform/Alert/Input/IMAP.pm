@@ -66,9 +66,9 @@ sub open {
          $imap->login   || do { $self->log->error('IMAP Login failed: '        .$imap->LastError); return; };
       }
 
-      # might not have a folder set
-      unless ($imap->IsSelected) {
-         $imap->select('Inbox') || do { $self->log->error('IMAP Select failed: '.$imap->LastError); return; };
+      # might not have a folder set (or might have a specific Folder option)
+      if (!$imap->IsSelected || $self->connopts->{folder}) {
+         $imap->select($self->connopts->{folder} || 'Inbox') || do { $self->log->error('IMAP Select failed: '.$imap->LastError); return; };
       }
    }
 
@@ -83,13 +83,15 @@ sub open {
 
 sub opened {
    my $self = shift;
-   $self->_has_conn and $self->_conn->IsSelected;
+   $self->_has_conn and $self->_conn and $self->_conn->IsSelected;
 }
 
 sub get {
    my $self = shift;
    my $uid  = shift @{$self->_list};
-   my $imap = $self->_conn;
+   my $imap = $self->_conn ||
+      # maybe+default+error still creates an undef attr, which would pass an 'exists' check on predicate
+      do { $self->_clear_conn; return; };
 
    my $msg = $imap->message_string($uid) || do { $self->log->error('Error grabbing IMAP message '.$uid.': '.$imap->LastError); return; };
    $msg =~ s/\r//g;
@@ -120,7 +122,12 @@ sub eof {
 
 sub close {
    my $self = shift;
-   my $imap = $self->_conn;
+   my $imap = $self->_conn || do {
+      # maybe+default+error still creates an undef attr, which would pass an 'exists' check on predicate
+      $self->_clear_list;
+      $self->_clear_conn;
+      return;
+   };
 
    $self->_clear_list;
    my $is_valid = $self->opened;
@@ -171,10 +178,12 @@ __END__
 This input type will read a IMAP mailbox and process each message through the input template engine.  If it finds a match, the results of the
 match are sent to one or more outputs, depending on the group configuration.
 
-See [Mail::IMAPClient|Mail::IMAPClient#Parameters] for a list of the ConnOpts section parameters.
+See [Mail::IMAPClient|Mail::IMAPClient/Parameters] for a list of the ConnOpts section parameters.
 
 The {ParsedFolder} option is special.  If set, it will move all parsed messages to that folder.  If not, it will rely on the Unread flag to
 figure out which messages have been parsed or not parsed.
+
+The {Folder} option (from [Mail::IMAPClient]) can be specified to use a different folder than the default Inbox.
 
 = OUTPUTS
 
@@ -195,6 +204,10 @@ Full text of the raw message, including headers.  All CRs are stripped.
    }
 
 = CAVEATS
+
+Special care should be made when using input templates on raw email messages.  For one, header order may change, which is difficult to
+manage with REs.  For another, the message is probably MIME-encoded and would contain 80-character splits.  Use of Mungers here is *highly*
+recommended.
 
 You are responsible for setting up any archiving/deletion protocols for the mailbox, as this module will save everything (and potentially
 fill up the box).

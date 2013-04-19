@@ -182,6 +182,10 @@ Full text of the raw message, including headers.  All CRs are stripped.
 
 = CAVEATS
 
+Special care should be made when using input templates on raw email messages.  For one, header order may change, which is difficult to
+manage with REs.  For another, the message is probably MIME-encoded and would contain 80-character splits.  Use of Mungers here is *highly*
+recommended.
+
 All messages are deleted from the system, whether it was matched or not.  If you need to save your messages, you should consider using
 [IMAP|Transform::Alert::Input::IMAP].
 

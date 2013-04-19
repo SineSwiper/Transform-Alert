@@ -20,17 +20,18 @@ __END__
 =begin wikidoc
 
 = SYNOPSIS
- 
+
    # In your configuration
    <Output null>
       Type     Null
       Template ""
       <ConnOpts/>
    </Output>
- 
+
 = DESCRIPTION
- 
-This output type is mainly used for testing.  It can have its
-uses to send messages to the bitbucket, though.
+
+This output type is mainly used for testing.  It can have its uses to send messages to the bitbucket, though.
+
+A Template can be specified here to test out how an Output gets filled in.  The resulting string will be found in the logs.
 
 =end wikidoc
